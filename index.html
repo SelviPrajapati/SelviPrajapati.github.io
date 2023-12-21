@@ -1,202 +1,274 @@
-<!doctype html>
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="description" content="Sample illustrating the pass through use case of Web NFC.">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    
-    <title>PASS THROUGH USECASE DEMO</title>
-    <script>
-      // Add a global error event listener early on in the page load, to help ensure that browsers
-      // which don't support specific functionality still end up displaying a meaningful message.
-      window.addEventListener('error', function(error) {
-        if (ChromeSamples && ChromeSamples.setStatus) {
-          console.error(error);
-          ChromeSamples.setStatus(error.message + ' (Your browser may not support this feature.)');
-          error.preventDefault();
-        }
-      });
-    </script>
+<title>Web NFC GUI</title>
+<style>
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    font-family: Arial, sans-serif;
+  }
 
-</head>
+  button {
+    padding: 10px 20px;
+    margin: 10px;
+    font-size: 16px;
+  }
+</style>
 
-<body>
+<h1>Offline Brand Protection using NBT 2000 </h1>
 
+<button id="scanButton">Scan/Read</button>
 
-<button id="ledOnButton">scan</button>
-
-
-<script src="webapi.ts"></script>
 
 <script>
-  var ChromeSamples = {
-    log: function() {
-      var line = Array.prototype.slice.call(arguments).map(function(argument) {
-        return typeof argument === 'string' ? argument : JSON.stringify(argument);
-      }).join(' ');
+ 
+// Create a new instance of the NFC reader
+const nfc = new NFC();
 
-      document.querySelector('#log').textContent += line + '\n';
-    },
 
-    clearLog: function() {
-      document.querySelector('#log').textContent = '';
-    },
+// Check if NFC is supported by the device
+if ('NDEFReader' in window) {
+  // Create a new instance of NDEFReader
+  const ndef = new NDEFReader();
 
-    setStatus: function(status) {
-      document.querySelector('#status').textContent = status;
-    },
+  // event listener to handle reading the NDEF content
+  ndef.addEventListener('reading', event => {
+    const message = event.message;
 
-    setContent: function(newContent) {
-      var content = document.querySelector('#content');
-      while(content.hasChildNodes()) {
-        content.removeChild(content.lastChild);
+  });
+
+  // Start reading the NFC card
+  ndef.scan();
+} else {
+  console.log('NFC is not supported by this device.');
+}
+
+
+const scanButton = document.getElementById("scanButton");
+
+  scanButton.addEventListener("click", async () => {
+  log("User clicked scan button");
+
+  try {
+    const ndef = new NDEFReader();
+    await ndef.scan();
+    log("> Scan started");
+
+    ndef.addEventListener("readingerror", () => {
+      log("Cannot read data from the NFC tag. Try another one?");
+    });
+
+    ndef.addEventListener("reading", ({ message, serialNumber }) => {
+      log(`> Serial Number: ${serialNumber}`);
+      log(`> Records: (${message.records.length})`);
+    });
+  } catch (error) {
+    log("error " + error);
+  }
+});
+
+// Start the NFC reader
+nfc.start();
+const SmartCard = require('smartcard');
+const crypto = require('crypto');
+
+// Start listening for NFC events
+nfc.on('reader', async (reader) => {
+  
+  // Wait for a card to be detected
+  reader.on('card', async (card) => {
+    console.log(`Card detected: ${card.uid}`);
+
+    // Connect to the card
+    await reader.connect({ card });
+
+    // Send APDU commands to the card
+    const apduCommands = 
+      // APDU commands here  // Example: '00A4040007A000000003101000'
+      array.forEach(element => 
+      {
+      const selectT4TFileCommand = [0x00, 0xA4, 0x00, 0x04, 0x00, 0x07, 0xA0, 0x00, 0x00, 0x00, 0x03, 0x10, 0x10, 0x00];
+      const selectT4TFileResponse = card.transmit(selectT4TFileCommand);
+
+      const selectCCFileCommand = [0x00, 0xA4, 0x00, 0x0C, 0x02, 0xE1, 0x03, 0x00];
+      const selectCCFileResponse = card.transmit(selectCCFFileCommand);
+
+      const readCCFileCommand = [0x00, 0xB0, 0x00, 0x00, 0x00];
+      const readCCFileResponse = card.transmit(readNDEFFileCommand);
+
+      const selectNDEFFileCommand = [0x00, 0xA4, 0x00, 0x0C, 0x02, 0xE1, 0x03, 0x00];
+      const selectNDEFFileResponse = card.transmit(selectNDEFFileCommand);
+      //Read the NDEF file
+      const readNDEFFileCommand = [0x00, 0xB0, 0x00, 0x00, 0x00];
+      const readNDEFFileResponse = card.transmit(readNDEFFileCommand);
+
+      //verify certificate code
+      
+reader.onreading = async event => 
+{
+    try {
+      // Read the NDEF message from the NFC tag
+      const ndefFileData = readNDEFFileResponse;
+
+      const message = await event.message.read();
+
+      // Find the first record of type "application/x-x509-ca-cert"
+      const certRecord = message.find(record => {
+        const recordType = record.recordType[0];
+        return recordType === 0x61 && record.typeNameFormat === 'mime' && record.type.includes('application/x-x509-ca-cert');
+      });
+
+      if (certRecord) {
+        // Extract the certificate data from the record
+        const certData = certRecord.data;
+
+        // Convert the payload to a string
+        const textDecoder = new TextDecoder();
+        
+        const text = textDecoder.decode(certData);
+
+          // Log the decoded payload to the console
+          console.log(text);
+
+  
+      } else {
+        console.log('No certificate found');
       }
-      content.appendChild(newContent);
+    } catch (error) {
+      console.error(error);
     }
   };
-</script>
 
-<h3>Live Output</h3>
-<div id="output" class="output">
-  <div id="content"></div>
-  <div id="status"></div>
-  <pre id="log"></pre>
-</div>
 
-<script>
-  if (/Chrome\/(\d+\.\d+.\d+.\d+)/.test(navigator.userAgent)){
-    // Let's log a warning if the sample is not supposed to execute on this
-    // version of Chrome.
-    if (89 > parseInt(RegExp.$1)) {
-      ChromeSamples.setStatus('Warning! Keep in mind this sample has been tested with Chrome ' + 89 + '.');
+// Load the root CA certificate
+const rootCACertificate = "-----BEGIN CERTIFICATE-----MIIC4jCCAkSgAwIBAgIEEjRWeDAKBggqhkjOPQQDBDCBjTE1MDMGA1UEAwwsTkZDIGJyaWRnZSAmIENMIHRhZyBkZXZpY2VzIFRFU1Qgcm9vdCBDQSAxMDAxCzAJBgNVBAYTAkRFMSEwHwYDVQQKDBhJbmZpbmVvbiBUZWNobm9sb2dpZXMgQUcxJDAiBgNVBAsMG05GQyBicmlkZ2UgJiBDTCB0YWcgZGV2aWNlczAiGA8yMDIyMDgwMTAwMDAwMFoYDzIwNDcwNzMwMjM1OTU5WjCBljE+MDwGA1UEAww1TkZDIGJyaWRnZSAmIENMIHRhZyBkZXZpY2VzIFRFU1QgbWFudWZhY3R1cmluZyBDQSAxMDAxCzAJBgNVBAYTAkRFMSEwHwYDVQQKDBhJbmZpbmVvbiBUZWNobm9sb2dpZXMgQUcxJDAiBgNVBAsMG05GQyBicmlkZ2UgJiBDTCB0YWcgZGV2aWNlczB2MBAGByqGSM49AgEGBSuBBAAiA2IABJfDB2SSZWUsYOtgzTLTx0cUf8pItX9VWG5CUuDqUFzURrZAgYgEwFXhhezLlD6+3PIs/KjroZfEPq3lWSB+rEap52SDgl6+cXz+VZGTe5ZohqIpeL8rSmVFuqNU4j3m5qNmMGQwEgYDVR0TAQH/BAgwBgEB/wIBADAfBgNVHSMEGDAWgBRri56q9lShLYPwrDtOmHWWLLW6AzAOBgNVHQ8BAf8EBAMCAgQwHQYDVR0OBBYEFGf68zcpG71hz1h5qJSXHcYydvMPMAoGCCqGSM49BAMEA4GLADCBhwJCAPADMT+Z5pDS4VNCNeIHfSgOv8pIPojYYlLPVnqEwy6+yptS9GE1B8etWTC4NrjW8LqOlLtOGClfhp23OlCtY/QhAkFArkXEoEZFfMuuiGW+mcxYG0MMwjuyeGYi3mJBXb0i9Onc3bCbx/oJ16GrFijMUz9KooWdiUCi+khHwNqrKJQ3ag==-----END CERTIFICATE-----";
+{
+//Signature Algorithm: (ecdsa-with-SHA256) ;
+issuer: 'CN=NFC bridge & CL tag devices TEST manufacturing CA 100, C=DE, O=Infineon Technologies AG, OU=NFC bridge & CL tag devices' ;
+validFrom: '2022-08-01';
+validTo: '2042-07-30';
+
+}
+
+function isDateValid(date) {
+  const currentDate = new Date();
+  const validFromDate = new Date(certData.validFrom);
+  const validToDate = new Date(certData.validTo);
+
+  return currentDate >= validFromDate && currentDate <= validToDate;
+}
+
+//const certificateDate = new Date('currentDate');
+console.log(isDateValid(certificateDate));
+
+
+// convert to binary format
+const binaryData = Buffer.from(rootCACertificate, 'utf-8');
+
+// encode to base64 format
+const base64Data = binaryData.toString('base64');
+
+//console.log(base64Data);
+const inputArray = new Uint8Array(base64Data);
+
+//const cert = generateCertificate(certOptions);
+
+// Parse the certificate and get the public key
+const certObject = forge.pki.certificateFromPem(cert);
+const publicKey = certObject.publicKey;
+
+// Verify the certificate of the binary-encoded data using the certificate public key
+const verified = publicKey.verify(inputArray,inputArraycert);
+
+// If the certificate is valid, then the input byte stream data matches the certificate
+if (verified) {
+  console.log('Validation succeeded');
+} else {
+  console.log('Validation failed');
+}  
+
+// Print the verification result
+console.log(`Certificate verification result: ${isVerified}`);
+
+
+}) ;
+// authenticate tag (1-255) byte challenge)
+
+const CMD_AUTHENTICATE_TAG = [0x00, 0x88, 0x00, 0x00, 0x08];
+
+// Generate a random 8-byte data challenge
+const dataChallenge = crypto.randomBytes(8);
+
+const reader = new SmartCard.Reader();
+
+reader.on('card', async (card) => {
+  try {
+    // Send the authenticate tag APDU command
+    const authTagApdu = Buffer.from(CMD_AUTHENTICATE_TAG.concat(dataChallenge));
+    const authTagResponse = await card.sendApdu(authTagApdu);
+
+    // Extract the signature from the response
+    const signature = authTagResponse.subarray(authTagResponse.length - 64, authTagResponse.length);
+
+    //  Infineon key
+    const key = Buffer.from('key', 'hex');
+
+    // Compute the hash of the challenge and key using SHA-256
+    const hash = crypto.createHash('sha256');
+    hash.update(Buffer.concat([Buffer.from(dataChallenge), key]));
+    const challengeHash = hash.digest();
+
+    // Verify the signature using the challenge hash and the Infineon key
+    const verify = crypto.createVerify('ecdsa-with-SHA256');
+    verify.update(Buffer.from(dataChallenge));
+    const isVerifiedsignature = verify.verify(key, signature);
+
+    console.log(`Signature: ${signature.toString('hex')}`);
+    console.log(`Verified: ${isVerifiedsignature}`);
+
+  } catch (error) {
+    console.error(`Error: ${error}`);
+  } 
+});
+
+  for (const command of apduCommands)
+  {
+    try {
+        // Send the command to the card
+        const response = await reader.transmit(Buffer.from(command, 'hex'));
+        console.log(`Command: ${command}`);
+        console.log(`Response: ${response.toString('hex')}`);
+      } catch (error) {
+        console.error(`Error sending command: ${command}`);
+        console.error(error);
+      }
     }
-  }
-</script>
 
+    // Disconnect from the card
+    await reader.disconnect();
+    console.log(`Card disconnected: ${card.uid}`);
 
-<script>
-  log = ChromeSamples.log;
+  });
+
+  // Wait for the reader to be removed
+  reader.on('end', () => {
+    console.log(`NFC reader removed: ${reader.reader.name}`);
+  });
   
-  if (!("NDEFReader" in window))
-    ChromeSamples.setStatus("Web NFC is not available. Use Chrome on Android.");
-  </script>
-  
-
-
-<script>
-
-ledOnButton.addEventListener("click", async () =>
-    {
-      log("User clicked LED ON button");
-    
-
-      const ndef = new NDEFReader();
-      await ndef.scan();
-
-      
-     const permission = await navigator.permissions.query({ name: "nfc" });
-      if (permission.state === "granted")
-{
-      ndef.onreading = event => 
-      {
-
-const decoder = new TextDecoder();
-for (const record of event.message.records) {
-  consoleLog("Record type:  " + record.recordType);
-  consoleLog("MIME type:    " + record.mediaType);
-  consoleLog("=== data ===\n" + decoder.decode(record.data));
-}
-
-};
-} else 
-{
-console.log("NFC permission not granted");
-}
-
 });
 
 
 
-</script>
+function logCommand(command) {
+  var commandLog = document.getElementById("commandLog");
+  commandLog.innerHTML += command + "<br>";
+  commandLog.scrollTop = commandLog.scrollHeight;
 
-<script>
-var command = navigator.seService.createCommand();
-
-  // initialize header bytes
-  command.setHeaders(cla, ins, p1, p2);
-
-  // set payload from byte array
-  command.setPayload(payload);
-
-  // and send it to the card
-  channel.transmit(command, transmitcb, errorcb);
-
-  // handle the response
-  function transmitcb (response)
-  {
-    console.log("response status: " + to_hex(response.status) +
-                " with " + response.payload.length + " bytes of data");
-
-    // when done, break off connection to applet
-    channel.close();
-  }
-
-  // called if transmit operation failed
-  function errorcb (why)
-  {
-    console.log("couldn't transmit command to card: " + why);
-  }
-
-
-
-</script>
-
-<script>
-
-  try
-{
-  var successCB = function()
-  {
-    console.log("Sending APDU response was successful");
-  };
-
-  var errorCB = function()
-  {
-    console.log("Sending APDU response failed");
-  };
-
-  var classOfInstruction = 0x00;   /* No SM or no SM indication. */
-  var instructionCode = 0xa4;      /* Select File. */
-  var firstParam = 0x04;           /* Direct selection by DF name. */
-  var secondParam = 0x00;          /* First record. */
-  var dataFieldLength = 0x04;      /* Variable length 1 or 3 bytes. */
-  var bytes = [0x01, 0x02, 0x03,0x04];  /* Variable length equal to dataFieldLength. */
-  var maxBytesExpected = 0x00;     /* Maximum bytes in answer. */
-
-  var apdu_response = [];
-  apdu_response = apdu_response.concat([classOfInstruction], [instructionCode], [firstParam],
-      [secondParam], [dataFieldLength], bytes,
-      [maxBytesExpected]);  /* Sets apdu response. */
-  adapter.sendHostAPDUResponse(apdu_response, successCB, errorCB);
-}
-catch (err)
-{
-  console.log(err.name + ": " + err.message);
 }
 
+logCommand("Reading NFC NDEF message...");
 
-function consoleLog(data) {
-  var logElement = document.getElementById('log');
-  logElement.innerHTML += data + '\n';
-}
-</script>
+</script> 
 
-
-
-  </body>
-  </html>
-
-  
-  
