@@ -26,7 +26,7 @@
 
 
 <button id="ledOnButton">scan</button>
-
+<button id="ledOffButton">LedOf</button>
 
 <script src="webapi.ts"></script>
 
@@ -43,7 +43,7 @@
     clearLog: function() {
       document.querySelector('#log').textContent = '';
     },
-
+ 
     setStatus: function(status) {
       document.querySelector('#status').textContent = status;
     },
@@ -78,6 +78,16 @@
 
 <script>
   log = ChromeSamples.log;
+  
+  if (!("NDEFReader" in window))
+    ChromeSamples.setStatus("Web NFC is not available. Use Chrome on Android.");
+  </script>
+  
+
+
+<script>
+
+log = ChromeSamples.log;
   
   if (!("NDEFReader" in window))
     ChromeSamples.setStatus("Web NFC is not available. Use Chrome on Android.");
@@ -124,8 +134,78 @@ function logCommand(command) {
   commandLog.scrollTop = commandLog.scrollHeight;
 
 }
+</script> 
 
+<script>
+ledOffButton.addEventListener("click", async () =>
+    {
+      log("User clicked LED Of button");
+
+      const ndef = new NDEFReader();
+      await ndef.scan();
+
+      
+     const permission = await navigator.permissions.query({ name: "nfc" });
+      if (permission.state === "granted")
+{
+
+    // my application identifier
+var myAppId = new Uint8Array(
+  [0xA0, 0x00, 0x00, 0x01, 0x51, 0x00, 0x00, 0x00] //A0 00 00 01 51 00 00 00 
+);
+// my application command
+var myAppCmd = new SECommand(0x00, 0xA4, 0x04, 0x00, 0x07, 0xD2, 0x76, 0x00, 0x00, 0x85, 0x01, 0x01, 0x00); //00 A4 04 00 07 D2 76 00 00 85 01 01 00 
+
+// register sepresent event handler
+navigator.secureElementManager.onsepresent = (event) => {
+
+  var session;
+  
+  // open session
+  event.reader.openSession()
+
+  .then( _session => {
+    session = _session;
+    return session.openBasicChannel(myAppId);
+  })
+
+  .then( _channel => {
+    return _channel.transmit(myAppCmd);
+  })
+
+  .then( _response => {
+    if (_response.isStatus(0x90, 0x00)) {
+      // process success response
+      mySuccessHandler(_response);
+    } else {
+      // process unexpected response
+      myFailureHandler(_response);
+    }
+  })
+
+  .catch( error => {
+    // error handler
+    myErrorHandler(error);
+  })
+
+  .then( _ => {
+    if (session) {
+      session.close();
+    }
+  })
+
+}
+}
+    })
+    function logCommand(command) {
+    var commandLog = document.getElementById("commandLog");
+    commandLog.innerHTML += command + "<br>";
+    commandLog.scrollTop = commandLog.scrollHeight;
+  
+  }
+  
 </script>
+
 
 
 
