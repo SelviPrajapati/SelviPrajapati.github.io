@@ -148,7 +148,8 @@ ledOffButton.addEventListener("click", async () =>
      const permission = await navigator.permissions.query({ name: "nfc" });
       if (permission.state === "granted")
 {
-
+    ndef.onreading = event => 
+      { log("APDU tranmission successfull");
     // my application identifier
 var myAppId = new Uint8Array(
   [0xA0, 0x00, 0x00, 0x01, 0x51, 0x00, 0x00, 0x00] //A0 00 00 01 51 00 00 00 
@@ -196,7 +197,7 @@ navigator.secureElementManager.onsepresent = (event) => {
   })
 
 }
-}
+} }
     })
     function logCommand(command) {
     var commandLog = document.getElementById("commandLog");
