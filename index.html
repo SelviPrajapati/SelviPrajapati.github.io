@@ -104,9 +104,9 @@ ledOnButton.addEventListener("click", async () =>
 
 const decoder = new TextDecoder();
 for (const record of event.message.records) {
-  consoleLog("Record type:  " + record.recordType);
-  consoleLog("MIME type:    " + record.mediaType);
-  consoleLog("=== data ===\n" + decoder.decode(record.data));
+  log("Record type:  " + record.recordType);
+  log("MIME type:    " + record.mediaType);
+  log("=== data ===\n" + decoder.decode(record.data));
 }
 
 };
@@ -118,10 +118,13 @@ console.log("NFC permission not granted");
 });
 
 
-function consoleLog(data) {
-  var logElement = document.getElementById('log');
-  logElement.innerHTML += data + '\n';
+function logCommand(command) {
+  var commandLog = document.getElementById("commandLog");
+  commandLog.innerHTML += command + "<br>";
+  commandLog.scrollTop = commandLog.scrollHeight;
+
 }
+
 </script>
 
 
