@@ -26,7 +26,7 @@
 
 
 <button id="ledOnButton">scan</button>
-
+<button id="ledOffButton">LedOf</button>
 
 <script src="webapi.ts"></script>
 
@@ -105,7 +105,6 @@ ledOnButton.addEventListener("click", async () =>
 const decoder = new TextDecoder();
 for (const record of event.message.records) {
   consoleLog("Record type:  " + record.recordType);
-  consoleLog("MIME type:    " + record.mediaType);
   consoleLog("=== data ===\n" + decoder.decode(record.data));
 }
 
@@ -117,81 +116,82 @@ console.log("NFC permission not granted");
 
 });
 
+ledOffButton.addEventListener("click", async () =>
+    {
+      log("User clicked LED ON button");
 
+      const ndef = new NDEFReader();
+      await ndef.scan();
 
-</script>
+      
+     const permission = await navigator.permissions.query({ name: "nfc" });
+      if (permission.state === "granted")
+{
 
-<script>
-var command = navigator.seService.createCommand();
+// Then, request access to the NFC device
+async function requestNfcDevice() {
+  const options = { timeout: 20000 };
+  try {
+    const ndef = await navigator.nfc.requestReader(options);
+    return ndef;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
 
-  // initialize header bytes
-  command.setHeaders(cla, ins, p1, p2);
-
-  // set payload from byte array
-  command.setPayload(payload);
-
-  // and send it to the card
-  channel.transmit(command, transmitcb, errorcb);
-
-  // handle the response
-  function transmitcb (response)
-  {
-    console.log("response status: " + to_hex(response.status) +
-                " with " + response.payload.length + " bytes of data");
-
-    // when done, break off connection to applet
-    channel.close();
+// Connect to the NFC device and send APDU commands
+async function connectAndSendApduToNfcCard() {
+  // Request permission to use the NFC API
+  const isNfcPermissionGranted = await requestNfcPermission();
+  if (!isNfcPermissionGranted) {
+    console.error("NFC permission not granted");
+    return;
   }
 
-  // called if transmit operation failed
-  function errorcb (why)
-  {
-    console.log("couldn't transmit command to card: " + why);
+  // Request access to the NFC device
+  const nfcDevice = await requestNfcDevice();
+  if (!nfcDevice) {
+    console.error("NFC device not found");
+    return;
   }
 
+  // Connect to the NFC device
+  const nfcReader = new NDEFReader(nfcDevice);
+  await nfcReader.connect();
+
+  // Send APDU commands to the NFC card
+  const apduCommands = [
+    "00A40400040102030400", // Select master file
+    
+  ];
+
+  for (const command of apduCommands) {
+    const apduBuffer = new Uint8Array(Buffer.from(command, "hex"));
+    const response = await nfcReader.transceive(apduBuffer);
+    console.log(response);
+  }
+
+  // Disconnect from the NFC device
+  await nfcReader.disconnect();
+}
+
+// Call the function to connect and send APDU commands to the NFC card
+connectAndSendApduToNfcCard();
+
+} 
+    });
 
 
+    function logCommand(command) {
+    var commandLog = document.getElementById("commandLog");
+    commandLog.innerHTML += command + "<br>";
+    commandLog.scrollTop = commandLog.scrollHeight;
+  
+  }
+  
 </script>
 
-<script>
-
-  try
-{
-  var successCB = function()
-  {
-    console.log("Sending APDU response was successful");
-  };
-
-  var errorCB = function()
-  {
-    console.log("Sending APDU response failed");
-  };
-
-  var classOfInstruction = 0x00;   /* No SM or no SM indication. */
-  var instructionCode = 0xa4;      /* Select File. */
-  var firstParam = 0x04;           /* Direct selection by DF name. */
-  var secondParam = 0x00;          /* First record. */
-  var dataFieldLength = 0x04;      /* Variable length 1 or 3 bytes. */
-  var bytes = [0x01, 0x02, 0x03,0x04];  /* Variable length equal to dataFieldLength. */
-  var maxBytesExpected = 0x00;     /* Maximum bytes in answer. */
-
-  var apdu_response = [];
-  apdu_response = apdu_response.concat([classOfInstruction], [instructionCode], [firstParam],
-      [secondParam], [dataFieldLength], bytes,
-      [maxBytesExpected]);  /* Sets apdu response. */
-  adapter.sendHostAPDUResponse(apdu_response, successCB, errorCB);
-}
-catch (err)
-{
-  console.log(err.name + ": " + err.message);
-}
-
-
-function consoleLog(data) {
-  var logElement = document.getElementById('log');
-  logElement.innerHTML += data + '\n';
-}
-</script>
 
 
 
