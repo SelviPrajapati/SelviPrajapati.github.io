@@ -177,6 +177,7 @@ navigator.secureElementManager.onsepresent = (event) => {
     if (_response.isStatus(0x90, 0x00)) {
       // process success response
       mySuccessHandler(_response);
+      log("sending APDU successful");
     } else {
       // process unexpected response
       myFailureHandler(_response);
