@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="description" content="Sample illustrating the pass through use case of Web NFC.">
+    <meta name="description" content="Sample illustrating the use of Web NFC.">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
     <title>PASS THROUGH USECASE DEMO</title>
@@ -25,10 +25,8 @@
 <body>
 
 
-<button id="ledOnButton">scan</button>
-<button id="ledOffButton">LedOf</button>
+<button id="ScanButton">Scan</button>
 
-<script src="webapi.ts"></script>
 
 <script>
   var ChromeSamples = {
@@ -82,146 +80,40 @@
   if (!("NDEFReader" in window))
     ChromeSamples.setStatus("Web NFC is not available. Use Chrome on Android.");
   </script>
-  
+
 
 
 <script>
 
-ledOnButton.addEventListener("click", async () =>
-    {
-      log("User clicked LED ON button");
-    
 
-      const ndef = new NDEFReader();
-      await ndef.scan();
+ScanButton.addEventListener("click", async () =>
+  {
+    log("User clicked scan button");
+  
 
+    const permission = await navigator.permissions.query({ name: "nfc" });
+    if (nfcPermissionStatus.state === "granted") {
+
+        const ndef = new NDEFReader();
+        await ndef.scan();
+        ndef.onreading = event =>  {
+
+        const decoder = new TextDecoder();
+        for (const record of event.message.records) {
+          consoleLog("Record type:  " + record.recordType);
+          consoleLog("MIME type:    " + record.mediaType);
+          consoleLog("=== data ===\n" + decoder.decode(record.data));
+        }
+
+        };
+      }
       
-     const permission = await navigator.permissions.query({ name: "nfc" });
-      if (permission.state === "granted")
-{
-      ndef.onreading = event => 
-      {
 
-const decoder = new TextDecoder();
-for (const record of event.message.records) {
-  consoleLog("Record type:  " + record.recordType);
-  consoleLog("=== data ===\n" + decoder.decode(record.data));
-}
-
-};
-} else 
-{
-console.log("NFC permission not granted");
-}
-
-});
-
-
-
-function logCommand(command) {
-    var commandLog = document.getElementById("commandLog");
-    commandLog.innerHTML += command + "<br>";
-    commandLog.scrollTop = commandLog.scrollHeight;
-}
-</script> 
-
-<script>
-ledOffButton.addEventListener("click", async () =>
-    {
-      log("User clicked LED Of button");
-
-      const ndef = new NDEFReader();
-      await ndef.scan();
-
+  });
+  
+  </script>
       
-     const permission = await navigator.permissions.query({ name: "nfc" });
-      if (permission.state === "granted")
-{
-
-    var command = navigator.seService.createCommand();
   
-  // initialize header bytes
-  command.setHeaders(cla, ins, p1, p2);
-
-  // set payload from byte array
-  command.setPayload(payload);
-
-  // and send it to the card
-  channel.transmit(command, transmitcb, errorcb);
-
-  // handle the response
-  function transmitcb (response)
-  {
-    log("response status: " + to_hex(response.status) +
-                " with " + response.payload.length + " bytes of data");
-
-    // when done, break off connection to applet
-    channel.close();
-  }
-
-  // called if transmit operation failed
-  function errorcb (why)
-  {
-    log("couldn't transmit command to card: " + why);
-  }
-
-}});
-
-
-</script>
-
-<script>
-
-  try
-{
-  var successCB = function()
-  {
-    log("Sending APDU response was successful");
-  };
-
-  var errorCB = function()
-  {
-    log("Sending APDU response failed");
-  };
-
-  var classOfInstruction = 0x00;   /* No SM or no SM indication. */
-  var instructionCode = 0xa4;      /* Select File. */
-  var firstParam = 0x04;           /* Direct selection by DF name. */
-  var secondParam = 0x00;          /* First record. */
-  var dataFieldLength = 0x04;      /* Variable length 1 or 3 bytes. */
-  var bytes = [0x01, 0x02, 0x03,0x04];  /* Variable length equal to dataFieldLength. */
-  var maxBytesExpected = 0x00;     /* Maximum bytes in answer. */
-
-  var apdu_response = [];
-  apdu_response = apdu_response.concat([classOfInstruction], [instructionCode], [firstParam],
-      [secondParam], [dataFieldLength], bytes,
-      [maxBytesExpected]);  /* Sets apdu response. */
-  adapter.sendHostAPDUResponse(apdu_response, successCB, errorCB);
-}
-catch (err)
-{
-  console.log(err.name + ": " + err.message);
-}
-
-
-
-
-
-
-    function logCommand(command) {
-    var commandLog = document.getElementById("commandLog");
-    commandLog.innerHTML += command + "<br>";
-    commandLog.scrollTop = commandLog.scrollHeight;
-  
-  }
-  
-</script>
-
-
-
-
-  </body>
+    </body>
   </html>
-
-  
-  
+      
