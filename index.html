@@ -118,7 +118,7 @@ console.log("NFC permission not granted");
 
 ledOffButton.addEventListener("click", async () =>
     {
-      log("User clicked LED Off button");
+      log("User clicked LED Of button");
 
       const ndef = new NDEFReader();
       await ndef.scan();
@@ -145,6 +145,7 @@ async function connectAndSendApduToNfcCard() {
   // Request permission to use the NFC API
   const isNfcPermissionGranted = await requestNfcPermission();
   if (!isNfcPermissionGranted) {
+    log("permission not granted");
     console.error("NFC permission not granted");
     return;
   }
@@ -152,7 +153,7 @@ async function connectAndSendApduToNfcCard() {
   // Request access to the NFC device
   const nfcDevice = await requestNfcDevice();
   if (!nfcDevice) {
-    console.error("NFC device not found");
+    log("NFC device not found");
     return;
   }
 
@@ -162,8 +163,8 @@ async function connectAndSendApduToNfcCard() {
 
   // Send APDU commands to the NFC card
   const apduCommands = [
-    "00A40400040102030400", // Select master file
-    
+    "00A40400040102030400", // Select cmd
+
   ];
 
   for (const command of apduCommands) {
@@ -181,7 +182,6 @@ connectAndSendApduToNfcCard();
 
 } 
     });
-
 
     function logCommand(command) {
     var commandLog = document.getElementById("commandLog");
