@@ -183,7 +183,17 @@ connectAndSendApduToNfcCard();
     });
 
 
+    function logCommand(command) {
+    var commandLog = document.getElementById("commandLog");
+    commandLog.innerHTML += command + "<br>";
+    commandLog.scrollTop = commandLog.scrollHeight;
+  
+  }
+  
 </script>
+
+
+
 
   </body>
   </html>
