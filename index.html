@@ -118,7 +118,7 @@ console.log("NFC permission not granted");
 
 ledOffButton.addEventListener("click", async () =>
     {
-      log("User clicked LED ON button");
+      log("User clicked LED Off button");
 
       const ndef = new NDEFReader();
       await ndef.scan();
