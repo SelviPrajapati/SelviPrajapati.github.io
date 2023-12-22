@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="description" content="Sample illustrating the pass through use case of Web NFC.">
+    <meta name="description" content="Sample illustrating the use of Web NFC.">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
     <title>PASS THROUGH USECASE DEMO</title>
@@ -25,10 +25,8 @@
 <body>
 
 
-<button id="ledOnButton">scan</button>
-<button id="ledOffButton">LedOf</button>
+<button id="ScanButton">Scan</button>
 
-<script src="webapi.ts"></script>
 
 <script>
   var ChromeSamples = {
@@ -82,121 +80,46 @@
   if (!("NDEFReader" in window))
     ChromeSamples.setStatus("Web NFC is not available. Use Chrome on Android.");
   </script>
-  
+
 
 
 <script>
 
-ledOnButton.addEventListener("click", async () =>
-    {
-      log("User clicked LED ON button");
-    
 
-      const ndef = new NDEFReader();
-      await ndef.scan();
+ScanButton.addEventListener("click", async () =>
+  {
+    log("User clicked scan button");
+  
 
+    const permission = await navigator.permissions.query({ name: "nfc" });
+    if (nfcPermissionStatus.state === "granted") {
+
+        const ndef = new NDEFReader();
+        await ndef.scan();
+        ndef.onreading = event =>  {
+
+        const decoder = new TextDecoder();
+        for (const record of event.message.records) {
+          consoleLog("Record type:  " + record.recordType);
+          consoleLog("MIME type:    " + record.mediaType);
+          consoleLog("=== data ===\n" + decoder.decode(record.data));
+        }
+
+        };
+      }
       
-     const permission = await navigator.permissions.query({ name: "nfc" });
-      if (permission.state === "granted")
-{
-      ndef.onreading = event => 
-      {
 
-const decoder = new TextDecoder();
-for (const record of event.message.records) {
-  consoleLog("Record type:  " + record.recordType);
-  consoleLog("=== data ===\n" + decoder.decode(record.data));
-}
-
-};
-} else 
-{
-console.log("NFC permission not granted");
-}
-
-});
-
-ledOffButton.addEventListener("click", async () =>
-    {
-      log("User clicked LED ON button");
-
-      const ndef = new NDEFReader();
-      await ndef.scan();
-
-      
-     const permission = await navigator.permissions.query({ name: "nfc" });
-      if (permission.state === "granted")
-{
-
-// Then, request access to the NFC device
-async function requestNfcDevice() {
-  const options = { timeout: 20000 };
-  try {
-    const ndef = await navigator.nfc.requestReader(options);
-    return ndef;
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
-}
-
-// Connect to the NFC device and send APDU commands
-async function connectAndSendApduToNfcCard() {
-  // Request permission to use the NFC API
-  const isNfcPermissionGranted = await requestNfcPermission();
-  if (!isNfcPermissionGranted) {
-    console.error("NFC permission not granted");
-    return;
-  }
-
-  // Request access to the NFC device
-  const nfcDevice = await requestNfcDevice();
-  if (!nfcDevice) {
-    console.error("NFC device not found");
-    return;
-  }
-
-  // Connect to the NFC device
-  const nfcReader = new NDEFReader(nfcDevice);
-  await nfcReader.connect();
-
-  // Send APDU commands to the NFC card
-  const apduCommands = [
-    "00A40400040102030400", // Select master file
-    
-  ];
-
-  for (const command of apduCommands) {
-    const apduBuffer = new Uint8Array(Buffer.from(command, "hex"));
-    const response = await nfcReader.transceive(apduBuffer);
-    console.log(response);
-  }
-
-  // Disconnect from the NFC device
-  await nfcReader.disconnect();
-}
-
-// Call the function to connect and send APDU commands to the NFC card
-connectAndSendApduToNfcCard();
-
-} 
-    });
-
+  });
+  
+  
 
     function logCommand(command) {
-    var commandLog = document.getElementById("commandLog");
-    commandLog.innerHTML += command + "<br>";
-    commandLog.scrollTop = commandLog.scrollHeight;
-  
-  }
-  
-</script>
-
-
-
-
-  </body>
+        var commandLog = document.getElementById("commandLog");
+        commandLog.innerHTML += command + "<br>";
+        commandLog.scrollTop = commandLog.scrollHeight;
+      
+      }
+    </script>
+    </body>
   </html>
-
-  
-  
+      
