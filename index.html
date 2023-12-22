@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="description" content="Sample illustrating the use of Web NFC.">
+    <meta name="description" content="Sample illustrating the pass through use case of Web NFC.">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
     <title>PASS THROUGH USECASE DEMO</title>
@@ -25,8 +25,10 @@
 <body>
 
 
-<button id="ScanButton">Scan</button>
+<button id="ledOnButton">scan</button>
 
+
+<script src="webapi.ts"></script>
 
 <script>
   var ChromeSamples = {
@@ -80,40 +82,59 @@
   if (!("NDEFReader" in window))
     ChromeSamples.setStatus("Web NFC is not available. Use Chrome on Android.");
   </script>
+  
 
+
+<script>
+
+ledOnButton.addEventListener("click", async () =>
+    {
+      log("User clicked LED ON button");
+    
+
+      const ndef = new NDEFReader();
+      await ndef.scan();
+
+      
+     const permission = await navigator.permissions.query({ name: "nfc" });
+      if (permission.state === "granted")
+{
+      ndef.onreading = event => 
+      {
+
+const decoder = new TextDecoder();
+for (const record of event.message.records) {
+  consoleLog("Record type:  " + record.recordType);
+  consoleLog("MIME type:    " + record.mediaType);
+  consoleLog("=== data ===\n" + decoder.decode(record.data));
+}
+
+};
+} else 
+{
+console.log("NFC permission not granted");
+}
+
+});
+
+
+
+</script>
 
 
 <script>
 
 
-ScanButton.addEventListener("click", async () =>
-  {
-    log("User clicked scan button");
-  
+function consoleLog(data) {
+  var logElement = document.getElementById('log');
+  logElement.innerHTML += data + '\n';
+}
+</script>
 
-    const permission = await navigator.permissions.query({ name: "nfc" });
-    if (nfcPermissionStatus.state === "granted") {
 
-        const ndef = new NDEFReader();
-        await ndef.scan();
-        ndef.onreading = event =>  {
 
-        const decoder = new TextDecoder();
-        for (const record of event.message.records) {
-          consoleLog("Record type:  " + record.recordType);
-          consoleLog("MIME type:    " + record.mediaType);
-          consoleLog("=== data ===\n" + decoder.decode(record.data));
-        }
-
-        };
-      }
-      
-
-  });
-  
-  </script>
-      
-  
-    </body>
+  </body>
   </html>
-      
+
+  
+  
