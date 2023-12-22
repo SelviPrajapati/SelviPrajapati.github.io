@@ -116,6 +116,16 @@ console.log("NFC permission not granted");
 
 });
 
+
+
+function logCommand(command) {
+    var commandLog = document.getElementById("commandLog");
+    commandLog.innerHTML += command + "<br>";
+    commandLog.scrollTop = commandLog.scrollHeight;
+}
+</script> 
+
+<script>
 ledOffButton.addEventListener("click", async () =>
     {
       log("User clicked LED Of button");
@@ -128,60 +138,75 @@ ledOffButton.addEventListener("click", async () =>
       if (permission.state === "granted")
 {
 
-// Then, request access to the NFC device
-async function requestNfcDevice() {
-  const options = { timeout: 20000 };
-  try {
-    const ndef = await navigator.nfc.requestReader(options);
-    return ndef;
-  } catch (error) {
-    console.error(error);
-    return null;
+    var command = navigator.seService.createCommand();
+  
+  // initialize header bytes
+  command.setHeaders(cla, ins, p1, p2);
+
+  // set payload from byte array
+  command.setPayload(payload);
+
+  // and send it to the card
+  channel.transmit(command, transmitcb, errorcb);
+
+  // handle the response
+  function transmitcb (response)
+  {
+    log("response status: " + to_hex(response.status) +
+                " with " + response.payload.length + " bytes of data");
+
+    // when done, break off connection to applet
+    channel.close();
   }
+
+  // called if transmit operation failed
+  function errorcb (why)
+  {
+    log("couldn't transmit command to card: " + why);
+  }
+
+}});
+
+
+</script>
+
+<script>
+
+  try
+{
+  var successCB = function()
+  {
+    log("Sending APDU response was successful");
+  };
+
+  var errorCB = function()
+  {
+    log("Sending APDU response failed");
+  };
+
+  var classOfInstruction = 0x00;   /* No SM or no SM indication. */
+  var instructionCode = 0xa4;      /* Select File. */
+  var firstParam = 0x04;           /* Direct selection by DF name. */
+  var secondParam = 0x00;          /* First record. */
+  var dataFieldLength = 0x04;      /* Variable length 1 or 3 bytes. */
+  var bytes = [0x01, 0x02, 0x03,0x04];  /* Variable length equal to dataFieldLength. */
+  var maxBytesExpected = 0x00;     /* Maximum bytes in answer. */
+
+  var apdu_response = [];
+  apdu_response = apdu_response.concat([classOfInstruction], [instructionCode], [firstParam],
+      [secondParam], [dataFieldLength], bytes,
+      [maxBytesExpected]);  /* Sets apdu response. */
+  adapter.sendHostAPDUResponse(apdu_response, successCB, errorCB);
+}
+catch (err)
+{
+  console.log(err.name + ": " + err.message);
 }
 
-// Connect to the NFC device and send APDU commands
-async function connectAndSendApduToNfcCard() {
-  // Request permission to use the NFC API
-  const isNfcPermissionGranted = await requestNfcPermission();
-  if (!isNfcPermissionGranted) {
-    log("permission not granted");
-    console.error("NFC permission not granted");
-    return;
-  }
 
-  // Request access to the NFC device
-  const nfcDevice = await requestNfcDevice();
-  if (!nfcDevice) {
-    log("NFC device not found");
-    return;
-  }
 
-  // Connect to the NFC device
-  const nfcReader = new NDEFReader(nfcDevice);
-  await nfcReader.connect();
 
-  // Send APDU commands to the NFC card
-  const apduCommands = [
-    "00A40400040102030400", // Select cmd
 
-  ];
-
-  for (const command of apduCommands) {
-    const apduBuffer = new Uint8Array(Buffer.from(command, "hex"));
-    const response = await nfcReader.transceive(apduBuffer);
-    console.log(response);
-  }
-
-  // Disconnect from the NFC device
-  await nfcReader.disconnect();
-}
-
-// Call the function to connect and send APDU commands to the NFC card
-connectAndSendApduToNfcCard();
-
-} 
-    });
 
     function logCommand(command) {
     var commandLog = document.getElementById("commandLog");
