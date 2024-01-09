@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="description" content="Sample illustrating the pass through use case of Web NFC.">
+    <meta name="description" content="Sample illustrating the ADT use case of Web NFC.">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
     <title>PASS THROUGH USECASE DEMO</title>
@@ -25,8 +25,8 @@
 <body>
 
 
-<button id="ledOnButton">scan</button>
-
+<button id="ledReadButton">Read</button>
+<button id="ledWriteButton">Write</button>
 
 <script src="webapi.ts"></script>
 
@@ -87,9 +87,9 @@
 
 <script>
 
-ledOnButton.addEventListener("click", async () =>
+ledReadButton.addEventListener("click", async () =>
     {
-      log("User clicked LED ON button");
+      log("User clicked READ button");
     
 
       const ndef = new NDEFReader();
@@ -116,6 +116,37 @@ console.log("NFC permission not granted");
 }
 
 });
+
+ledWriteButton.addEventListener("click", async () =>
+    {
+      log("User clicked Write button");
+    
+
+      const ndef = new NDEFReader();
+      await ndef.scan();
+
+      
+     const permission = await navigator.permissions.query({ name: "nfc" });
+      if (permission.state === "granted")
+{
+      ndef.onreading = event => 
+      {
+
+const decoder = new TextDecoder();
+for (const record of event.message.records) {
+  log("Record type:  " + record.recordType);
+  log("MIME type:    " + record.mediaType);
+  log("=== data ===\n" + decoder.decode(record.data));
+}
+
+};
+} else 
+{
+console.log("NFC permission not granted");
+}
+
+});
+
 
 
 function logCommand(command) {
