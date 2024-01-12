@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="description" content="Sample illustrating the ADT use case of Web NFC.">
+    <meta name="description" content="Sample illustrating the pass through use case of Web NFC.">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
     <title>PASS THROUGH USECASE DEMO</title>
@@ -25,8 +25,12 @@
 <body>
 
 
-<button id="ledReadButton">Read</button>
-<button id="ledWriteButton">Write</button>
+<button id="ledOnButton">scan</button>
+
+<button id="textbutton">Text</button>
+<button id="urlbutton">URL</button>
+<button id="jsonbutton">Json</button>
+
 
 <script src="webapi.ts"></script>
 
@@ -87,9 +91,9 @@
 
 <script>
 
-ledReadButton.addEventListener("click", async () =>
+ledOnButton.addEventListener("click", async () =>
     {
-      log("User clicked READ button");
+      log("User clicked LED ON button");
     
 
       const ndef = new NDEFReader();
@@ -109,16 +113,6 @@ for (const record of event.message.records) {
   log("=== data ===\n" + decoder.decode(record.data));
 }
 
-let isLedOn = true;
-
-if (isLedOn) {
-  log("The LED state is ON");
-} else {
-    log("The LED state is OFF");
-
-}
-
-
 };
 } else 
 {
@@ -127,9 +121,9 @@ console.log("NFC permission not granted");
 
 });
 
-ledWriteButton.addEventListener("click", async () =>
+textbutton.addEventListener("click", async () =>
     {
-      log("User clicked Write button");
+      log("User clicked write text button");
     
 
       const ndef = new NDEFReader();
@@ -139,41 +133,49 @@ ledWriteButton.addEventListener("click", async () =>
      const permission = await navigator.permissions.query({ name: "nfc" });
       if (permission.state === "granted")
 {
-      ndef.onreading = event => 
-      {
-
-const decoder = new TextDecoder();
-for (const record of event.message.records) {
-  log("Record type:  " + record.recordType);
-  log("MIME type:    " + record.mediaType);
-  log("=== data ===\n" + decoder.decode(record.data));
-}
-
-function toggleLed(isLedOn) {
-
-let Statebyte = new Uint16Array([0x00]);
-
-  if (isLedOn) {
-    // LED is on, turn it off
-    isLedOn = false;
-    Statebyte[0]  = 0x01;
-  } else {
-    // LED is off, turn it on
-    isLedOn = true;
-    Statebyte[0]  = 0x01;
-  }
-  
-  console.log(`LED is now ${isLedOn ? 'on' : 'off'}.`);
-}
+      
+ndef.write(
+  "hello world"
+).then(() => {
+  console.log("Message written.");
+}).catch(error => {
+  console.log(`Write failed :-( try again: ${error}.`);
+});
 
 
-};
 } else 
 {
 console.log("NFC permission not granted");
 }
 
 });
+
+
+urlbutton.addEventListener("click", async () =>
+    {
+      log("User clicked write url button");
+    
+      
+     const permission = await navigator.permissions.query({ name: "nfc" });
+      if (permission.state === "granted")
+{
+    const ndef = new NDEFReader();
+try {
+  await ndef.write({
+    records: [{ recordType: "url", data: "https://w3c.github.io/web-nfc/" }]
+  });
+} catch {
+  console.log("Write failed :-( try again.");
+};
+
+
+} else 
+{
+console.log("NFC permission not granted");
+}
+
+});
+
 
 
 function logCommand(command) {
