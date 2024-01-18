@@ -27,9 +27,9 @@
 
 <button id="ledOnButton">scan</button>
 
-<button id="textbutton">Button1</button>
-<button id="urlbutton">Button2</button>
-
+<button id="textbutton">Text</button>
+<button id="urlbutton">URL</button>
+<button id="jsonbutton">Json</button>
 
 
 <script src="webapi.ts"></script>
@@ -124,11 +124,16 @@ console.log("NFC permission not granted");
 textbutton.addEventListener("click", async () =>
     {
       log("User clicked write text button");
+    
+
+      const ndef = new NDEFReader();
+      await ndef.scan();
+
       
      const permission = await navigator.permissions.query({ name: "nfc" });
       if (permission.state === "granted")
 {
-     const ndef = new NDEFReader();  
+      
 ndef.write(
   "hello world"
 ).then(() => {
@@ -145,22 +150,26 @@ console.log("NFC permission not granted");
 
 });
 
+
 urlbutton.addEventListener("click", async () =>
     {
-      log("User clicked write button 2");
+      log("User clicked write url button");
     
       
      const permission = await navigator.permissions.query({ name: "nfc" });
       if (permission.state === "granted")
 {
     const ndef = new NDEFReader();
-    ndef.write(
-  "Welcome"
-).then(() => {
-  console.log("Message written.");
-}).catch(error => {
-  console.log(`Write failed :-( try again: ${error}.`);
-});
+try {
+  await ndef.write({
+    records: [{ recordType: "url", data: "https://w3c.github.io/web-nfc/" }]
+  });
+} catch {
+  console.log("Write failed :-( try again.");
+  
+  
+
+};
 
 
 } else 
@@ -169,7 +178,6 @@ console.log("NFC permission not granted");
 }
 
 });
-
 
 
 function logCommand(command) {
