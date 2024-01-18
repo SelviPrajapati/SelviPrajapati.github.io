@@ -27,9 +27,9 @@
 
 <button id="ledOnButton">scan</button>
 
-<button id="textbutton">Text</button>
-<button id="urlbutton">URL</button>
-<button id="jsonbutton">Json</button>
+<button id="textbutton">Button1</button>
+<button id="urlbutton">Button2</button>
+
 
 
 <script src="webapi.ts"></script>
@@ -127,7 +127,6 @@ textbutton.addEventListener("click", async () =>
     
 
       const ndef = new NDEFReader();
-      await ndef.scan();
 
       
      const permission = await navigator.permissions.query({ name: "nfc" });
@@ -160,16 +159,15 @@ urlbutton.addEventListener("click", async () =>
       if (permission.state === "granted")
 {
     const ndef = new NDEFReader();
-try {
-  await ndef.write({
-    records: [{ recordType: "url", data: "https://w3c.github.io/web-nfc/" }]
-  });
-} catch {
-  console.log("Write failed :-( try again.");
-  
-  
+    ndef.write(
+  "Welcome"
+).then(() => {
+  console.log("Message written.");
+}).catch(error => {
+  console.log(`Write failed :-( try again: ${error}.`);
 
-};
+});
+
 
 
 } else 
@@ -178,6 +176,7 @@ console.log("NFC permission not granted");
 }
 
 });
+
 
 
 function logCommand(command) {
