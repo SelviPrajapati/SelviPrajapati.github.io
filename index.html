@@ -124,16 +124,11 @@ console.log("NFC permission not granted");
 textbutton.addEventListener("click", async () =>
     {
       log("User clicked write text button");
-    
-
-      const ndef = new NDEFReader();
-      await ndef.scan();
-
       
      const permission = await navigator.permissions.query({ name: "nfc" });
       if (permission.state === "granted")
 {
-      
+     const ndef = new NDEFReader();  
 ndef.write(
   "hello world"
 ).then(() => {
@@ -150,10 +145,9 @@ console.log("NFC permission not granted");
 
 });
 
-
 urlbutton.addEventListener("click", async () =>
     {
-      log("User clicked write url button");
+      log("User clicked write button 2");
     
       
      const permission = await navigator.permissions.query({ name: "nfc" });
