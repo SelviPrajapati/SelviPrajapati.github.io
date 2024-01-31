@@ -175,36 +175,6 @@
 
 <script>
 
-ledOnButton.addEventListener("click", async () =>
-    {
-      log("User clicked LED ON button");
-    
-
-      const ndef = new NDEFReader();
-      await ndef.scan();
-
-      
-     const permission = await navigator.permissions.query({ name: "nfc" });
-      if (permission.state === "granted")
-{
-      ndef.onreading = event => 
-      {
-
-const decoder = new TextDecoder();
-for (const record of event.message.records) {
-  log("Record type:  " + record.recordType);
-  log("MIME type:    " + record.mediaType);
-  log("=== data ===\n" + decoder.decode(record.data));
-}
-
-};
-} else 
-{
-console.log("NFC permission not granted");
-}
-
-});
-
 textbutton.addEventListener("click", async () =>
     {
       log("User clicked LED ON button");
