@@ -42,6 +42,13 @@
 
     .app {
       flex-grow: 1;
+      
+    }
+
+    button {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
     }
 
     @media only screen and (max-width: 575px) {
@@ -83,7 +90,12 @@
       width: 100%;
     }
 
-   
+
+    button {
+      position: auto;
+      left: 30%;
+      transform: translateX(-50%);
+    }
     
 
     table>tbody>tr>th {
@@ -111,9 +123,11 @@
         <div class="app">
           <h2>NBT ADT use case with Web NFC </h2>
 
-<button id="textbutton">LED ON</button>
-<button id="urlbutton">LED OFF</button>
+          <div class="button1"> 
+            <button id="textbutton">LED ON</button>
+            <button id="urlbutton">LED OFF</button>
 
+            </div>
 
 
 <script src="webapi.ts"></script>
