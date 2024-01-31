@@ -4,10 +4,13 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="description" content="Sample illustrating the pass through use case of Web NFC.">
+    <meta name="description" content="Sample illustrating the ADT use case of Web NFC.">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
-    <title>PASS THROUGH USECASE DEMO</title>
+    <title>ADT USECASE DEMO</title>
+    
+     <script type="module"
+    src="https://cdn.jsdelivr.net/npm/@infineon/infineon-design-system-stencil/dist/infineon-design-system-stencil/infineon-design-system-stencil.esm.js"></script>
     <script>
       // Add a global error event listener early on in the page load, to help ensure that browsers
       // which don't support specific functionality still end up displaying a meaningful message.
@@ -21,14 +24,95 @@
     </script>
 
 </head>
+<style>
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
 
+    .container {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .app {
+      flex-grow: 1;
+    }
+
+    @media only screen and (max-width: 575px) {
+      .app {
+        padding: 0.5rem;
+      }
+
+      table>tbody>tr>td {
+        padding-left: 0;
+      }
+    }
+
+    @media only screen and (min-width: 576px) and (max-width: 767px) {
+      .app {
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+
+      table>tbody>tr>td {
+        padding-left: 1rem;
+      }
+    }
+
+    @media only screen and (min-width: 768px) {
+      .app {
+        padding-left: 2rem;
+        padding-right: 2rem;
+      }
+
+      table>tbody>tr>td {
+        padding-left: 2rem;
+      }
+    }
+
+    table {
+      display: block;
+      overflow-x: auto;
+      table-layout: fixed;
+      width: 100%;
+    }
+
+   
+    
+
+    table>tbody>tr>th {
+      white-space: nowrap;
+    }
+
+    table>tbody>tr>td {
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      max-width: 1px; /* hack to break long hex values */
+      width: 100%;
+    }
+
+    .hex {
+      font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+    }
+  </style>
+
+</head>
 <body>
 
+    <div class="container">
+        <ifx-navbar application-name="Web NFC" fixed="false"></ifx-navbar>
+    
+        <div class="app">
+          <h2>NBT ADT use case with Web NFC </h2>
 
-<button id="ledOnButton">scan</button>
-
-<button id="textbutton">Button1</button>
-<button id="urlbutton">Button2</button>
+<button id="textbutton">LED ON</button>
+<button id="urlbutton">LED OFF</button>
 
 
 
@@ -123,7 +207,7 @@ console.log("NFC permission not granted");
 
 textbutton.addEventListener("click", async () =>
     {
-      log("User clicked write text button");
+      log("User clicked LED ON button");
     
 
       const ndef = new NDEFReader();
@@ -145,21 +229,21 @@ ndef.write(
 } else 
 {
 console.log("NFC permission not granted");
+
 }
 
 });
 
-
 urlbutton.addEventListener("click", async () =>
     {
-      log("User clicked write url button");
+      log("User clicked LED OFF button");
     
-      
+      const ndef = new NDEFReader();
      const permission = await navigator.permissions.query({ name: "nfc" });
       if (permission.state === "granted")
 {
-    const ndef = new NDEFReader();
-    ndef.write(
+   
+ndef.write(
   "Welcome"
 ).then(() => {
   console.log("Message written.");
@@ -169,14 +253,13 @@ urlbutton.addEventListener("click", async () =>
 });
 
 
-
 } else 
 {
 console.log("NFC permission not granted");
+
 }
 
 });
-
 
 
 function logCommand(command) {
@@ -187,7 +270,31 @@ function logCommand(command) {
 }
 
 </script>
+</div>
 
+<ifx-footer variant="medium">
+  <div slot="socials">
+    <ifx-link variant="title" href="http://facebook.com/infineon">
+      <ifx-icon icon="facebook"></ifx-icon>
+    </ifx-link>
+    <ifx-link variant="title" href="http://youtube.com/infineon">
+      <ifx-icon icon="youtube"></ifx-icon>
+    </ifx-link>
+    <ifx-link variant="title" href="http://instagram.com/infineon">
+      <ifx-icon icon="instagram"></ifx-icon>
+    </ifx-link>
+    <ifx-link variant="title" href="http://linkedin.com/infineon">
+      <ifx-icon icon="linkedin"></ifx-icon>
+    </ifx-link>
+    <ifx-link variant="title" href="http://twitter.com/infineon">
+      <ifx-icon icon="twitter"></ifx-icon>
+    </ifx-link>
+    <ifx-link variant="title" href="http://xing.com/infineon">
+      <ifx-icon icon="xing"></ifx-icon>
+    </ifx-link>
+  </div>
+</ifx-footer>
+</div>
 
 
   </body>
