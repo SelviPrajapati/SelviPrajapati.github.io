@@ -132,6 +132,8 @@
           <h2>ADT use case with Web NFC </h2>
 
           <div class="button1"> 
+            
+            <button id="readButton">scan</button>
             <button id="textbutton">LED ON</button>
             <button id="urlbutton">LED OFF</button>
 
@@ -197,6 +199,37 @@
 
 <script>
 
+ 
+readButton.addEventListener("click", async () =>
+    {
+      log("User clicked Scan button");
+    
+
+      const ndef = new NDEFReader();
+      await ndef.scan();
+
+      
+     const permission = await navigator.permissions.query({ name: "nfc" });
+      if (permission.state === "granted")
+{
+      ndef.onreading = event => 
+      {
+
+const decoder = new TextDecoder();
+for (const record of event.message.records) {
+  log("Record type:  " + record.recordType);
+  log("MIME type:    " + record.mediaType);
+  log("=== data ===\n" + decoder.decode(record.data));
+}
+
+};
+} else 
+{
+console.log("NFC permission not granted");
+}
+
+});   
+
 textbutton.addEventListener("click", async () =>
     {
       log("User clicked LED ON button");
@@ -232,6 +265,7 @@ urlbutton.addEventListener("click", async () =>
       log("User clicked LED OFF button");
     
       const ndef = new NDEFReader();
+      await ndef.scan();
      const permission = await navigator.permissions.query({ name: "nfc" });
       if (permission.state === "granted")
 {
@@ -294,5 +328,4 @@ function logCommand(command) {
   </html>
 
   
-
   
