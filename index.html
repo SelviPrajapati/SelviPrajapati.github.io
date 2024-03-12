@@ -216,14 +216,19 @@ readButton.addEventListener("click", async () =>
       {
 
 const decoder = new TextDecoder();
-const buffer = Buffer.from(record, 'base64');
-const bufString = buffer.toString('hex');
+
+let base64Value = record;
+
+let h= [...atob(base64Value)].map(c=> c.charCodeAt(0).toString(16).padStart(2,0)).join``
+
+log( h.toUpperCase() );
+
 
 for (const record of event.message.records) {
   log("Record type:  " + record.recordType);
   log("MIME type:    " + record.mediaType);
   log("=== data ===\n" + decoder.decode(record.data));
-  log("=== COTTdata===\n" + bufString(record.data));
+  //log("=== COTTdata===\n" + bufString(record.data));
 
 }
 
