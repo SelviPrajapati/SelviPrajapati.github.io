@@ -216,20 +216,21 @@ readButton.addEventListener("click", async () =>
       {
 
 const decoder = new TextDecoder();
-function base64ToHex(str) {
-  const raw = atob(str);
-  let result = '';
-  for (let i = 0; i < raw.length; i++) {
-    const hex = raw.charCodeAt(i).toString(16);
-    result += (hex.length === 2 ? hex : '0' + hex);
-  }
-  return result.toUpperCase();
+function base64ToBase16(base64) {
+  return window.atob(base64)
+      .split('')
+      .map(function (aChar) {
+        return ('0' + aChar.charCodeAt(0).toString(16)).slice(-2);
+      })
+     .join('')
+     .toUpperCase(); 
 }
+
 for (const record of event.message.records) {
   log("Record type:  " + record.recordType);
   log("MIME type:    " + record.mediaType);
   log("=== data ===\n" + decoder.decode(record.data));
-  log("=== COTTdata===\n" + base64ToHex(record.data));
+  log("=== COTTdata===\n" + base64ToBase16(record.data));
 
 }
 
