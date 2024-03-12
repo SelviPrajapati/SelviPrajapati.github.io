@@ -222,7 +222,7 @@ for (const record of event.message.records) {
   log("Record type:  " + record.recordType);
   log("MIME type:    " + record.mediaType);
   log("=== data ===\n" + decoder.decode(record.data));
-  log("=== COTTdata===\n" + encodeURIComponent(record.data));
+  log("=== COTTdata===\n" + String2Hex(utf8.encode(record.data)));
 
 }
 
