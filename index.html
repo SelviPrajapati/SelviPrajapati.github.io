@@ -14,6 +14,7 @@
     <script>
       // Add a global error event listener early on in the page load, to help ensure that browsers
       // which don't support specific functionality still end up displaying a meaningful message.
+  
       window.addEventListener('error', function(error) {
         if (ChromeSamples && ChromeSamples.setStatus) {
           console.error(error);
@@ -134,8 +135,7 @@
           <div class="button1"> 
             
             <button id="readButton">scan</button>
-            <button id="textbutton">LED ON</button>
-            <button id="urlbutton">LED OFF</button>
+            
 
             </div>
 
@@ -220,6 +220,7 @@ for (const record of event.message.records) {
   log("Record type:  " + record.recordType);
   log("MIME type:    " + record.mediaType);
   log("=== data ===\n" + decoder.decode(record.data));
+
 }
 
 };
@@ -230,63 +231,6 @@ console.log("NFC permission not granted");
 
 });   
 
-textbutton.addEventListener("click", async () =>
-    {
-      log("User clicked LED ON button");
-    
-
-      const ndef = new NDEFReader();
-      await ndef.scan();
-
-      
-     const permission = await navigator.permissions.query({ name: "nfc" });
-      if (permission.state === "granted")
-{
-      
-ndef.write(
-  "hello world"
-).then(() => {
-  console.log("Message written.");
-}).catch(error => {
-  console.log(`Write failed :-( try again: ${error}.`);
-});
-
-
-} else 
-{
-console.log("NFC permission not granted");
-
-}
-
-});
-
-urlbutton.addEventListener("click", async () =>
-    {
-      log("User clicked LED OFF button");
-    
-      const ndef = new NDEFReader();
-      await ndef.scan();
-     const permission = await navigator.permissions.query({ name: "nfc" });
-      if (permission.state === "granted")
-{
-   
-ndef.write(
-  "Welcome"
-).then(() => {
-  console.log("Message written.");
-}).catch(error => {
-  console.log(`Write failed :-( try again: ${error}.`);
-
-});
-
-
-} else 
-{
-console.log("NFC permission not granted");
-
-}
-
-});
 
 
 function logCommand(command) {
