@@ -227,11 +227,13 @@ function base64ToHex(str) {
   return result.toUpperCase();
 }
 
+
+
 for (const record of event.message.records) {
   log("Record type:  " + record.recordType);
   log("MIME type:    " + record.mediaType);
   log("=== data ===\n" + decoder.decode(record.data));
-  log("=== COTTdata===\n" + base64ToHex("AQIDBAUGBwgJCgsMDQ4PENurWUI/vsWnvjLEjOGoDho="));
+  log("=== COTTdata===\n" + base64ToHex("AQWNP9nUsgBLtM0IqFxk7v1ReRGAVtYd6IS4hUAnm2I="));
 
 }
 
