@@ -227,11 +227,6 @@ function base64ToHex(str) {
   return result.toUpperCase();
 }
 
-
-for(const record of event.message.records)
-{
-    log("=== COTTdata===\n" + base64ToHex(record.data));
-}
 for (const record of event.message.records) {
   log("Record type:  " + record.recordType);
   log("MIME type:    " + record.mediaType);
