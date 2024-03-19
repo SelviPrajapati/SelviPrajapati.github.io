@@ -217,24 +217,22 @@ readButton.addEventListener("click", async () =>
 
 const decoder = new TextDecoder();
 
-function base64ToHex(str) {
-  const raw = atob(str);
-  let result = '';
-  for (let i = 0; i < raw.length; i++) {
-    const hex = raw.charCodeAt(i).toString(16);
-    result += (hex.length === 2 ? hex : '0' + hex);
-  }
-  return result.toUpperCase();
-}
+// Given hex string
+let hexString = "030D91014B55033132372E302E302E313A383038302F636F74742E68746D6C3F636F74743D4151574E50396E557367435276694D52504235443651304C5055386B3776597955364E6364515A425748633D4C360000028001696E66696E656F6E20746563686E6F6C6F676965733A696E66696E656F6E2E636F6D3A6E66632D6272696467652D7461672E78353039003082027C30820202A003020102020408000002300A06082A8648CE3D040302308196313E303C06035504030C354E464320627269646765202620434C2074616720646576696365732054455354206D616E75666163747572696E6720434120313030310B30090603550406130244453121";  // Replace '...' with the rest of the hex string
 
+// Convert the hex string to a binary string
+let binaryString = atob(hexString.match(/.{1,2}/g).map(byte => String.fromCharCode(parseInt(byte, 16))).join(''));
+
+// Extract the substring from 3rd byte to 44th byte (assuming 1 byte = 2 characters in the hex string)
+let extractedData = binaryString.substring(2 * 3, 2 * 44 + 1);
 
 
 for (const record of event.message.records) {
   log("Record type:  " + record.recordType);
   log("MIME type:    " + record.mediaType);
   log("=== data ===\n" + decoder.decode(record.data));
-  log("=== COTTdata===\n" + base64ToHex("AQWNP9nUsgBLtM0IqFxk7v1ReRGAVtYd6IS4hUAnm2I="));
-
+  log("=== COTTdata===\n" + extractedData);
+ 
 }
 
 };
