@@ -225,13 +225,13 @@ let binaryString = atob(hexString.match(/.{1,2}/g).map(byte => String.fromCharCo
 
 // Extract the substring from 3rd byte to 44th byte (assuming 1 byte = 2 characters in the hex string)
 let extractedData = binaryString.substring(2 * 3, 2 * 44 + 1);
-
+log(extractedData);
 
 for (const record of event.message.records) {
   log("Record type:  " + record.recordType);
   log("MIME type:    " + record.mediaType);
   log("=== data ===\n" + decoder.decode(record.data));
-  log("=== COTTdata===\n" + extractedData);
+  //log("=== COTTdata===\n" + extractedData);
  
 }
 
