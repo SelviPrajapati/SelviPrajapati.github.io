@@ -242,11 +242,21 @@ function extractBytes(hexString, startByte, endByte) {
   return extractedBytes;
 }
 
-// Extract bytes from 3rd to 34th byte
+// Extract bytes from 3rd to 34th byte (32bytes)
 let extractedData = extractBytes(hexString, 3, 34);
 
-// Log the extracted data
 log(extractedData);
+
+let UID = extractedData.substring(2 * 2, 2 * 8 + 1);  // Assuming 1 byte = 2 characters
+// Separate and assign 9th byte to 16th byte to variable "random"
+let random = extractedData.substring(2 * 9, 2 * 16 + 1);  // Assuming 1 byte = 2 characters
+
+// Separate and assign 17th byte to 32nd byte to variable "mac"
+let mac = extractedData.substring(2 * 17, 2 * 31 + 1);  // Assuming 1 byte = 2 characters
+
+log("UID:", UID);
+log("Random:", random);
+log("MAC:", mac);
 
 
 for (const record of event.message.records) {
