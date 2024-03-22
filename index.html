@@ -247,6 +247,9 @@ let extractedData = extractBytes(hexString, 3, 33);
 
 log(extractedData);
 
+let Header = extractedData.substring(0, 2);  // Assuming 1 byte = 2 characters
+
+
 let UID = extractedData.substring(2 * 1, 2 * 8);  // Assuming 1 byte = 2 characters
 // Separate and assign 9th byte to 16th byte to variable "random"
 let random = extractedData.substring(2 * 8, 2 * 16);  // Assuming 1 byte = 2 characters
@@ -254,9 +257,28 @@ let random = extractedData.substring(2 * 8, 2 * 16);  // Assuming 1 byte = 2 cha
 // Separate and assign 17th byte to 32nd byte to variable "mac"
 let mac = extractedData.substring(2 * 16, 2 * 31);  // Assuming 1 byte = 2 characters
 
+log("Header:", Header);
 log("UID:", UID);
 log("Random:", random);
 log("MAC:", mac);
+
+let key = "373F5060409BA014B69A627622F23B59";
+
+// Convert the key from string to bytes
+let keyBytes = key.match(/.{2}/g).map(byte => parseInt(byte, 16));
+
+// Concatenate the variables
+let concatData = Header + UID + random + mac;
+
+// Convert the concatenated data from string to bytes
+let concatBytes = concatData.match(/.{2}/g).map(byte => parseInt(byte, 16));
+
+let generatedMAC = concatBytes.map((byte, index) => {
+  return byte ^ keyBytes[index % keyBytes.length];
+}).map(byte => byte.toString(16).padStart(2, '0')).join('').toUpperCase();
+
+// Log the generated MAC
+log("Generated MAC:", generatedMAC);
 
 
 for (const record of event.message.records) {
