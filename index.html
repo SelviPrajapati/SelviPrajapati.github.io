@@ -262,24 +262,19 @@ log("UID:", UID);
 log("Random:", random);
 log("MAC:", mac);
 
-const crypto = require('crypto');
+const aesCmac = require('aes-cmac');
+const { enc } = require('crypto-js');
 
 let key = Buffer.from("373F5060409BA014B69A627622F23B59", 'hex');
 
 // Concatenate the variables
 let concatData = Header + UID + random + mac;
 
-// Convert the concatenated data from string to buffer
-let concatBuffer = Buffer.from(concatData, 'hex');
+// Convert the concatenated data to Buffer
+let dataBuffer = Buffer.from(concatData, 'hex');
 
 // Generate the CMAC using AES-CMAC
-let cmac = crypto.createHmac('aes128', key)
-                 .update(concatBuffer)
-                 .digest('hex')
-                 .toUpperCase();
-
-// Take the first 16 bytes as the 16-byte CMAC
-let generatedCMAC = cmac.substring(0, 32);  // 16 bytes in hexadecimal is 32 characters
+let generatedCMAC = aesCmac(dataBuffer, key).toString('hex').toUpperCase();
 
 // Log the generated CMAC
 log("Generated CMAC:", generatedCMAC);
@@ -292,7 +287,6 @@ for (const record of event.message.records) {
   log("=== COTTData ===\n" + base64ToHex("AUtVAzEyNy4wLjAuMTo4MDgwL2NvdHQuaHRtbD9jb3Q="));
 
   //log("=== COTTdata===\n" + extractedData); 
-
  
 }
 };
