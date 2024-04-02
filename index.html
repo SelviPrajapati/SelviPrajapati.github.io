@@ -323,9 +323,9 @@ function aesEncrypt(cipher, data) {
 }
 
 // Given variables and key
-let Header1 = "01";
-let UID1 = "4B55033132372E";
-let random1 = "302E302E313A3830";
+let Header1 = ("01", 'hex');
+let UID1 = ("4B55033132372E", 'hex');
+let random1 = ("302E302E313A3830", 'hex');
 let key = Buffer.from("373F5060409BA014B69A627622F23B59", 'hex');
 
 // Concatenate the variables
