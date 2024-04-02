@@ -268,8 +268,7 @@ log("UID:", UID);
 log("Random:", random);
 log("MAC:", mac);
 
-
-import { aesCmac } from 'node-aes-cmac';
+var aesCmac = require('node-aes-cmac').aesCmac;
 
 // Given variables and key
 let Header1 = ("01", 'hex');
