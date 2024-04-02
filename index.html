@@ -13,8 +13,21 @@
     src="https://cdn.jsdelivr.net/npm/@infineon/infineon-design-system-stencil/dist/infineon-design-system-stencil/infineon-design-system-stencil.esm.js"></script>
 
      <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
-   
+    <script src="https://github.com/jfamousket/aes-cmac-js/blob/master/src/aes-cmac.ts"></script>
 
+    <script>
+
+    
+      // Add a global error event listener early on in the page load, to help ensure that browsers
+      // which don't support specific functionality still end up displaying a meaningful message.
+  
+      window.addEventListener('error', function(error) {
+        if (ChromeSamples && ChromeSamples.setStatus) {
+          console.error(error);
+          ChromeSamples.setStatus(error.message + ' (Your browser may not support this feature.)');
+          error.preventDefault();
+        }
+      });
     </script>
 
 </head>
@@ -129,7 +142,6 @@
             
             <button id="readButton">scan</button>
             
-            <button id="calculatecmac">Mac</button>
 
             </div>
 
@@ -183,6 +195,15 @@
 
 
 <script>
+  log = ChromeSamples.log;
+  
+  if (!("NDEFReader" in window))
+    ChromeSamples.setStatus("Web NFC is not available. Use Chrome on Android.");
+  </script>
+  
+
+
+<script>
 
  
 readButton.addEventListener("click", async () =>
@@ -190,26 +211,107 @@ readButton.addEventListener("click", async () =>
       log("User clicked Scan button");
     
 
-const crypto = require('crypto');
-const aesCmac = require('node-aes-cmac').aesCmac;
+      const ndef = new NDEFReader();
+      await ndef.scan();
 
-// Given variables and key
-let Header1 = ("01", 'hex');
-let UID1 = ("4B55033132372E", 'hex');
-let random1 = ("302E302E313A3830", 'hex');
-let key = Buffer.from("373F5060409BA014B69A627622F23B59", 'hex');
+      
+     const permission = await navigator.permissions.query({ name: "nfc" });
+      if (permission.state === "granted")
+{
+      ndef.onreading = event => 
+      {
 
-// Concatenate the variables
-let concatData = Header1 + UID1 + random1 ;
+const decoder = new TextDecoder();
 
-// Generate the CMAC using AES-CMAC
-let generatedCMAC = aesCmac(key, Buffer.from(concatData, 'hex'));
+function base64ToHex(str) {
+  const raw = atob(str);
+  let result = '';
+  for (let i = 0; i < raw.length; i++) {
+    const hex = raw.charCodeAt(i).toString(16);
+    result += (hex.length === 2 ? hex : '0' + hex);
+  }
+  return result.toUpperCase();
+}
 
 
-// Log the generated CMAC
-log("Generated CMAC:", generatedCMAC);
+function bytesToBase64(byteArray) {
+  // 1. Convert the byte array to a binary string.
+  let binaryString = '';
+  byteArray.forEach((byte) => {
+    binaryString += String.fromCharCode(byte);
+  });
 
-});
+  // 2. Encode the binary string to base64.
+  const base64String = btoa(binaryString);
+
+  // 3. Return the base64 encoded string.
+  return base64String;
+}
+
+
+
+
+// Given hex string
+let hexString = "030D91014B55033132372E302E302E313A383038302F636F74742E68746D6C3F636F74743D4151574F50396E557367414966795835595F755475595A392D415A632D54475F6B56415956524250565A673D4C360000028001696E66696E656F6E20746563686E6F6C6F676965733A696E66696E656F6E2E636F6D3A6E66632D6272696467652D7461672E78353039003082027C30820202A003020102020408000002300A06082A8648CE3D040302308196313E303C06035504030C354E464320627269646765202620434C2074616720646576696365732054455354206D616E75666163747572696E6720434120313030310B30090603550406130244453121";  // Replace '...' with the rest of the hex string
+
+// Function to extract the bytes from the hex string
+function extractBytes(hexString, startByte, endByte) {
+  // Convert start and end bytes to indices in the hex string
+  let startIndex = startByte * 2; // Each byte is represented by 2 characters in the hex string
+  let endIndex = (endByte + 1) * 2; // Adding 1 to the endByte to include the byte at that position
+
+  // Extract the specified bytes from the hex string
+  let extractedBytes = hexString.substring(startIndex, endIndex);
+
+  return extractedBytes;
+}
+
+// Extract bytes from 3rd to 34th byte (32bytes)
+let extractedData = extractBytes(hexString, 37, 81);
+
+log("COTT ENCODED", extractedData);
+
+// Example usage:
+const bytesArray = new Uint8Array(extractedData); 
+const base64String = bytesToBase64(bytesArray);
+
+log("COTT DECODED", base64String);
+
+
+
+let Header = extractedData.substring(0, 2);  // Assuming 1 byte = 2 characters
+
+
+let UID = extractedData.substring(2 * 1, 2 * 8);  // Assuming 1 byte = 2 characters
+// Separate and assign 9th byte to 16th byte to variable "random"
+let random = extractedData.substring(2 * 8, 2 * 16);  // Assuming 1 byte = 2 characters
+
+// Separate and assign 17th byte to 32nd byte to variable "mac"
+let mac = extractedData.substring(2 * 16, 2 * 31);  // Assuming 1 byte = 2 characters
+
+log("Header:", Header);
+log("UID:", UID);
+log("Random:", random);
+log("MAC:", mac);
+
+
+
+for (const record of event.message.records) {
+  log("Record type:  " + record.recordType);
+  log("MIME type:    " + record.mediaType);
+  log("=== data ===\n" + decoder.decode(record.data));
+  log("=== COTTData ===\n" + base64ToHex("AQWOP9nUsgCRviMRPB5D6Q0LPU8k7vYyU6NcdQZBWHc="));
+
+  //log("=== COTTdata===\n" + extractedData); 
+ 
+}
+};
+} else 
+{
+console.log("NFC permission not granted");
+}
+
+});   
 
 
 
@@ -250,6 +352,3 @@ function logCommand(command) {
 
   </body>
   </html>
-
-  
-  
