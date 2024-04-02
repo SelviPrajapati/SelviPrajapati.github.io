@@ -262,56 +262,21 @@ log("UID:", UID);
 log("Random:", random);
 log("MAC:", mac);
 
-const crypto = require('crypto');
+var aesCmac = require('node-aes-cmac').aesCmac;
+ 
+ 
+// Example with buffers.
+var bufferKey = Buffer.from('373F5060409BA014B69A627622F23B59', 'hex');
+var bufferMessage = Buffer.from('014b55033132372e302e302e313a383038302f636f74742e68746d6c3f636f74','hex');
+var options = {returnAsBuffer: true};
+cmac = aesCmac(bufferKey, bufferMessage, options);
 
-function aesCmac(key, data) {
-  const cipher = crypto.createCipheriv('aes-128-ecb', key, '');
-  const n = Math.ceil(data.length / 16); // Number of blocks
-  let subKeys = [];
-  let l = cipher.update(Buffer.from('0', 'hex')).toString('hex');
-  
-  // Calculate subkeys
-  if (n === 0) {
-    subKeys.push(calcSubKey(Buffer.from('0', 'hex')));
-  } else {
-    for (let i = 0; i < n - 1; i++) {
-      subKeys.push(calcSubKey(data.slice(i * 16, (i + 1) * 16)));
-    }
-    
-    if (data.length % 16 === 0) {
-      subKeys.push(calcSubKey(data.slice(data.length - 16, data.length)));
-    } else {
-      const lastBlock = Buffer.alloc(16, 0);
-      data.copy(lastBlock, 0, (n - 1) * 16);
-      subKeys.push(calcSubKey(lastBlock));
-    }
-  }
-  l = parseInt(l, 16);
-  subKeys = subKeys.map(k => {
-    let ki = parseInt(k, 16);
-    return (ki << 1) ^ ((ki & 0x80) ? 0x87 : 0);
-  });
-  for (let i = 0; i < n; i++) {
-    l ^= parseInt(data.slice(i * 16, (i + 1) * 16).toString('hex'), 16);
-  }
-  l ^= subKeys[subKeys.length - 1];
-  l = l.toString(16).padStart(32, '0');
-  return l;
-}
+console.log("cmac "+ Buffer.from(cmac, 'base64').toString('hex')) ;
 
-function calcSubKey(input) {
-  const cipher = crypto.createCipheriv('aes-128-ecb', key, '');
-  const result = cipher.update(input);
-  return result.toString('hex');
-}
-
-// Usage example
-const key = Buffer.from('373F5060409BA014B69A627622F23B59', 'hex'); // Replace with your key
-const data = Buffer.from('030D91014B55033132372E302E302E313A383038302F636F74742E68746D6C3F636F74743D4151574E50396E557367435276694D52504235443651304C5055386B3776597955364E6364515A425748633D4C360000028001696E66696E656F6E20746563686E6F6C6F676965733A696E66696E656F6E2E636F6D3A6E66632D6272696467652D7461672E78353039003082027C30820202A003020102020408000002300A06082A8648CE3D040302308196313E303C06035504030C354E464320627269646765202620434C2074616720646576696365732054455354206D616E75666163747572696E6720434120313030310B30090603550406130244453121', 'hex'); // Replace with your data
-const cmac = aesCmac(key, data);
 
 // Log the generated CMAC
 log("Generated CMAC:", generatedCMAC);
+
 
 for (const record of event.message.records) {
   log("Record type:  " + record.recordType);
