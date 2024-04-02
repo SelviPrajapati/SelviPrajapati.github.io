@@ -11,13 +11,7 @@
     
      <script type="module"
     src="https://cdn.jsdelivr.net/npm/@infineon/infineon-design-system-stencil/dist/infineon-design-system-stencil/infineon-design-system-stencil.esm.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
-    <script src="https://github.com/jfamousket/aes-cmac-js/blob/master/src/aes-cmac.ts"></script>
-    
     <script>
-
-    
-    
       // Add a global error event listener early on in the page load, to help ensure that browsers
       // which don't support specific functionality still end up displaying a meaningful message.
   
@@ -236,58 +230,13 @@ function base64ToHex(str) {
 // Given hex string
 let hexString = "030D91014B55033132372E302E302E313A383038302F636F74742E68746D6C3F636F74743D4151574E50396E557367435276694D52504235443651304C5055386B3776597955364E6364515A425748633D4C360000028001696E66696E656F6E20746563686E6F6C6F676965733A696E66696E656F6E2E636F6D3A6E66632D6272696467652D7461672E78353039003082027C30820202A003020102020408000002300A06082A8648CE3D040302308196313E303C06035504030C354E464320627269646765202620434C2074616720646576696365732054455354206D616E75666163747572696E6720434120313030310B30090603550406130244453121";  // Replace '...' with the rest of the hex string
 
-// Function to extract the bytes from the hex string
-function extractBytes(hexString, startByte, endByte) {
-  // Convert start and end bytes to indices in the hex string
-  let startIndex = startByte * 2; // Each byte is represented by 2 characters in the hex string
-  let endIndex = (endByte + 1) * 2; // Adding 1 to the endByte to include the byte at that position
+// Convert the hex string to a binary string
+let binaryString = atob(hexString.match(/.{1,2}/g).map(byte => String.fromCharCode(parseInt(byte, 16))).join(''));
 
-  // Extract the specified bytes from the hex string
-  let extractedBytes = hexString.substring(startIndex, endIndex);
-
-  return extractedBytes;
-}
-
-// Extract bytes from 3rd to 34th byte (32bytes)
-let extractedData = extractBytes(hexString, 3, 33);
-
+// Extract the substring from 3rd byte to 44th byte (assuming 1 byte = 2 characters in the hex string)
+let extractedData = binaryString.substring(2 * 3, 2 * 34 + 1);
 log(extractedData);
-
-let Header = extractedData.substring(0, 2);  // Assuming 1 byte = 2 characters
-
-
-let UID = extractedData.substring(2 * 1, 2 * 8);  // Assuming 1 byte = 2 characters
-// Separate and assign 9th byte to 16th byte to variable "random"
-let random = extractedData.substring(2 * 8, 2 * 16);  // Assuming 1 byte = 2 characters
-
-// Separate and assign 17th byte to 32nd byte to variable "mac"
-let mac = extractedData.substring(2 * 16, 2 * 31);  // Assuming 1 byte = 2 characters
-
-log("Header:", Header);
-log("UID:", UID);
-log("Random:", random);
-log("MAC:", mac);
-
-var aesCmac = require('node-aes-cmac').aesCmac;
-
-// Given variables and key
-let Header1 = ("01", 'hex');
-let UID1 = ("4B55033132372E", 'hex');
-let random1 = ("302E302E313A3830", 'hex');
-let key = Buffer.from("373F5060409BA014B69A627622F23B59", 'hex');
-
-// Concatenate the variables
-let concatData = Header1 + UID1 + random1 ;
-
-// Convert the concatenated data to Buffer
-let dataBuffer = Buffer.from(concatData, 'hex');
-
-// Generate the CMAC using AES-CMAC
-let generatedCMAC = aesCmac(dataBuffer, key).toString('hex').toUpperCase();
-
-
-// Log the generated CMAC
-log("Generated CMAC:", generatedCMAC);
+// log(extractedData);
 
 
 for (const record of event.message.records) {
@@ -297,7 +246,7 @@ for (const record of event.message.records) {
   log("=== COTTData ===\n" + base64ToHex("AUtVAzEyNy4wLjAuMTo4MDgwL2NvdHQuaHRtbD9jb3Q="));
 
   //log("=== COTTdata===\n" + extractedData); 
- 
+
 }
 };
 } else 
