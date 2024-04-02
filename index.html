@@ -12,6 +12,7 @@
      <script type="module"
     src="https://cdn.jsdelivr.net/npm/@infineon/infineon-design-system-stencil/dist/infineon-design-system-stencil/infineon-design-system-stencil.esm.js"></script>
     <script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
       // Add a global error event listener early on in the page load, to help ensure that browsers
       // which don't support specific functionality still end up displaying a meaningful message.
   
@@ -262,8 +263,7 @@ log("UID:", UID);
 log("Random:", random);
 log("MAC:", mac);
 
- 
-const crypto = require('crypto');
+
 
 function aesCmac(key, data) {
   const cipher = crypto.createCipheriv('aes-128-ecb', key, Buffer.alloc(0));
