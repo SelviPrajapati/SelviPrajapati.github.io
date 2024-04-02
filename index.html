@@ -14,7 +14,8 @@
     <script>
 
     
-        src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"> 
+        src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"
+        src="https://github.com/jfamousket/aes-cmac-js/blob/master/src/aes-cmac.ts"
     
       // Add a global error event listener early on in the page load, to help ensure that browsers
       // which don't support specific functionality still end up displaying a meaningful message.
@@ -268,62 +269,6 @@ log("MAC:", mac);
 
 
 
-function aesCmac(key, data) {
-  const cipher = crypto.createCipheriv('aes-128-ecb', key, Buffer.alloc(0));
-  const buf = Buffer.alloc(16, 0);
-  const n = Math.ceil(data.length / 16);
-  let subkey1, subkey2;
-
-  if (n === 0) {
-    subkey1 = Buffer.alloc(16, 0);
-    subkey2 = Buffer.alloc(16, 0);
-  } else {
-    let lastBlock = data.slice((n - 1) * 16);
-    if (lastBlock.length === 16) {
-      subkey1 = xorBuffers(lastBlock, aesEncrypt(cipher, subkey1));
-    } else {
-      lastBlock = Buffer.concat([lastBlock, Buffer.from([0x80])]);
-      while (lastBlock.length < 16) {
-        lastBlock = Buffer.concat([lastBlock, Buffer.alloc(1, 0)]);
-      }
-      subkey1 = xorBuffers(lastBlock, aesEncrypt(cipher, subkey1));
-    }
-
-    subkey2 = xorBuffers(subkey1, aesEncrypt(cipher, subkey1));
-  }
-
-  let x = Buffer.alloc(16, 0);
-  for (let i = 0; i < n - 1; i++) {
-    let block = data.slice(i * 16, (i + 1) * 16);
-    x = xorBuffers(x, block);
-    x = aesEncrypt(cipher, x);
-  }
-  x = xorBuffers(x, subkey1);
-  if (n === 0) {
-    x = aesEncrypt(cipher, x);
-  } else {
-    let lastBlock = data.slice((n - 1) * 16);
-    if (lastBlock.length === 16) {
-      x = xorBuffers(x, lastBlock);
-    } else {
-      x = xorBuffers(x, subkey2);
-    }
-  }
-  x = aesEncrypt(cipher, x);
-  return x.toString('hex').toUpperCase().substring(0, 32);
-}
-
-function xorBuffers(a, b) {
-  const result = Buffer.alloc(16, 0);
-  for (let i = 0; i < 16; i++) {
-    result[i] = a[i] ^ b[i];
-  }
-  return result;
-}
-
-function aesEncrypt(cipher, data) {
-  return cipher.update(data);
-}
 
 // Given variables and key
 let Header1 = ("01", 'hex');
@@ -334,8 +279,11 @@ let key = Buffer.from("373F5060409BA014B69A627622F23B59", 'hex');
 // Concatenate the variables
 let concatData = Header1 + UID1 + random1 ;
 
+// Convert the concatenated data to Buffer
+let dataBuffer = Buffer.from(concatData, 'hex');
+
 // Generate the CMAC using AES-CMAC
-let generatedCMAC = aesCmac(key, Buffer.from(concatData, 'hex'));
+let generatedCMAC = aesCmac(dataBuffer, key).toString('hex').toUpperCase();
 
 
 // Log the generated CMAC
