@@ -262,16 +262,25 @@ log("UID:", UID);
 log("Random:", random);
 log("MAC:", mac);
 
-var aesCmac = require('node-aes-cmac').aesCmac;
  
- 
-// Example with buffers.
-var bufferKey = Buffer.from('373F5060409BA014B69A627622F23B59', 'hex');
-var bufferMessage = Buffer.from('014b55033132372e302e302e313a383038302f636f74742e68746d6c3f636f74','hex');
-var options = {returnAsBuffer: true};
-cmac = aesCmac(bufferKey, bufferMessage, options);
+const crypto = require('crypto');
 
-console.log("cmac "+ Buffer.from(cmac, 'base64').toString('hex')) ;
+let key = Buffer.from("373F5060409BA014B69A627622F23B59", 'hex');
+
+// Concatenate the variables
+let concatData = Header + UID + random + mac;
+
+// Convert the concatenated data from string to buffer
+let concatBuffer = Buffer.from(concatData, 'hex');
+
+// Create an AES-128-CTR cipher using the key
+let cipher = crypto.createCipheriv('aes-128-ctr', key, Buffer.alloc(16, 0));
+
+// Encrypt the concatenated buffer
+let encryptedBuffer = Buffer.concat([cipher.update(concatBuffer), cipher.final()]);
+
+// Extract the first 16 bytes as the MAC
+let generatedMAC = encryptedBuffer.slice(0, 16).toString('hex').toUpperCase();
 
 
 // Log the generated CMAC
