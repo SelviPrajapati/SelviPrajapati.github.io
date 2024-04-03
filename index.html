@@ -273,12 +273,13 @@ function extractBytes(hexString, startByte, endByte) {
 // Extract bytes from 3rd to 34th byte (32bytes)
 let extractedData = extractBytes(hexString, 37, 80);
 
-log("COTT ENCODED:-", extractedData);
+log("COTT Encoded Base64 Hex:", extractedData);
 
 const hexString1 = '01058e3fd9d4b20091be23113c1e43e90d0b3d4f24eef63253a35c7506415877'; // Hexadecimal for 'Hello'
 const base64String = hexToBase64(hexString1);
 
-log("COTT DECODED", base64String);
+log("COTT Encoded Base64 string:", base64String);
+log("COTT Decoded Base64 hex:", base64ToHex(base64String));
 
 
 
