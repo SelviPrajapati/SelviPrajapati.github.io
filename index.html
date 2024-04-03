@@ -233,18 +233,15 @@ function base64ToHex(str) {
   return result.toUpperCase();
 }
 
+function base64BytesToBase64String(byteArray) {
+  // 1. Convert each byte in the byte array to the corresponding ASCII character.
+  const chars = byteArray.map(byte => String.fromCharCode(byte));
+  // 2. Join all characters together to form a binary string.
+  const binaryString = chars.join('');
+  // 3. Encode the binary string to base64 if it's not already in base64 form.
+  const base64String = btoa(binaryString);
 
-function bytesToBase64(str) {
-  // 1. Convert the byte array to a binary string.
-  //let binaryString = '';
- // byteArray.forEach((byte) => {
- //   binaryString += String.fromCharCode(byte);
-  //});
-
-  // 2. Encode the binary string to base64.
-  const base64String = btoa(str);
-
-  // 3. Return the base64 encoded string.
+  // 4. Return the base64 string.
   return base64String;
 }
 
@@ -271,11 +268,9 @@ let extractedData = extractBytes(hexString, 37, 80);
 
 log("COTT ENCODED:-", extractedData);
 
-// Example usage:
-//const bytesArray = new Uint8Array(extractedData); 
-const base64String = bytesToBase64(extractedData);
+const base64Text = base64BytesToBase64String(extractedData);
 
-log("COTT DECODED", base64String);
+log("COTT DECODED", base64Text);
 
 
 
