@@ -234,15 +234,15 @@ function base64ToHex(str) {
 }
 
 
-function bytesToBase64(byteArray) {
+function bytesToBase64(str) {
   // 1. Convert the byte array to a binary string.
-  let binaryString = '';
-  byteArray.forEach((byte) => {
-    binaryString += String.fromCharCode(byte);
-  });
+  //let binaryString = '';
+ // byteArray.forEach((byte) => {
+ //   binaryString += String.fromCharCode(byte);
+  //});
 
   // 2. Encode the binary string to base64.
-  const base64String = btoa(binaryString);
+  const base64String = btoa(str);
 
   // 3. Return the base64 encoded string.
   return base64String;
