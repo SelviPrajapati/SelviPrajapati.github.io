@@ -233,18 +233,17 @@ function base64ToHex(str) {
   return result.toUpperCase();
 }
 
-function base64EncodedHexToHex(base64EncodedHex) {
-  // 1. Decode the base64-encoded hex string to get the binary string.
+function base64EncodedHexToDecodedHex(base64EncodedHex) {
+  // Decode the base64 string
   const binaryString = atob(base64EncodedHex);
 
-  // 2. Convert the binary string back to a hexadecimal string.
+  // Convert the binary string to the original hex string
   let hexString = '';
   for (let i = 0; i < binaryString.length; i++) {
-    const hexByte = binaryString.charCodeAt(i).toString(16);
-    hexString += hexByte.padStart(2, '0');
+    const hex = binaryString.charCodeAt(i).toString(16);
+    hexString += hex.padStart(2, '0');
   }
 
-  // 3. Return the hex string.
   return hexString;
 }
 
@@ -269,7 +268,8 @@ let extractedData = extractBytes(hexString, 37, 80);
 log("COTT ENCODED:-", extractedData);
 
 const base64EncodedHex = '4151574F50396E557367414966795835595F755475595A392D415A632D54475F6B56415956524250565A673D'; // Base64 encoded string
-const decodedHexString = base64EncodedHexToHex(base64EncodedHex);
+
+const decodedHex = base64EncodedHexToDecodedHex(base64EncodedHex);
 
 log("COTT DECODED", decodedHexString);
 
