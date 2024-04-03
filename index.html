@@ -233,9 +233,9 @@ function base64ToHex(str) {
   return result.toUpperCase();
 }
 
-function base64EncodedHexToBase64Text(extractedData) {
+function base64EncodedHexToBase64Text(base64EncodedHex) {
   // 1. Decode the base64-encoded hex string to get the hexadecimal string.
-  const hexString = atob(extractedData);
+  const hexString = atob(base64EncodedHex);
 
   // 2. Convert the hexadecimal string to an array of bytes.
   const bytes = new Uint8Array(hexString.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
@@ -276,8 +276,8 @@ let extractedData = extractBytes(hexString, 37, 80);
 log("COTT ENCODED:-", extractedData);
 
 // Example usage:
-//const base64EncodedHex = 'NDg2NTZjNmM2ZjIwNzU2ZjcyNmQ='; // Base64 encoded hex for "Hello World" (hex: "48656c6c6f20576f726c64")
-const base64Text = base64EncodedHexToBase64Text(extractedData);
+const base64EncodedHex = '4151574F50396E557367414966795835595F755475595A392D415A632D54475F6B56415956524250565A673D'; // Base64 encoded hex for "Hello World" (hex: "48656c6c6f20576f726c64")
+const base64Text = base64EncodedHexToBase64Text(base64EncodedHex);
 
 
 log("COTT DECODED", base64Text);
