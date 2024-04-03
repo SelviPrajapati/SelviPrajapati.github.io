@@ -283,15 +283,15 @@ log("COTT Decoded Base64 hex:", base64ToHex(base64String));
 
 
 
-let Header = extractedData.substring(0, 2);  // Assuming 1 byte = 2 characters
+let Header = hexString1.substring(0, 2);  // Assuming 1 byte = 2 characters
 
 
-let UID = extractedData.substring(2 * 1, 2 * 8);  // Assuming 1 byte = 2 characters
+let UID = hexString1.substring(2 * 1, 2 * 8);  // Assuming 1 byte = 2 characters
 // Separate and assign 9th byte to 16th byte to variable "random"
-let random = extractedData.substring(2 * 8, 2 * 16);  // Assuming 1 byte = 2 characters
+let random = hexString1.substring(2 * 8, 2 * 16);  // Assuming 1 byte = 2 characters
 
 // Separate and assign 17th byte to 32nd byte to variable "mac"
-let mac = extractedData.substring(2 * 16, 2 * 31);  // Assuming 1 byte = 2 characters
+let mac = hexString1.substring(2 * 16, 2 * 31);  // Assuming 1 byte = 2 characters
 
 log("Header:", Header);
 log("UID:", UID);
