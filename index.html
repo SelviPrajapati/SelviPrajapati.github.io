@@ -267,13 +267,13 @@ function extractBytes(hexString, startByte, endByte) {
 }
 
 // Extract bytes from 3rd to 34th byte (32bytes)
-let extractedData = extractBytes(hexString, 37, 81);
+let extractedData = extractBytes(hexString, 37, 80);
 
-log("COTT ENCODED", extractedData);
+log("COTT ENCODED:-", extractedData);
 
 // Example usage:
-const bytesArray = new Uint8Array(extractedData); 
-const base64String = bytesToBase64(bytesArray);
+//const bytesArray = new Uint8Array(extractedData); 
+const base64String = bytesToBase64(extractedData);
 
 log("COTT DECODED", base64String);
 
