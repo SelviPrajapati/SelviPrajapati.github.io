@@ -235,7 +235,7 @@ function base64ToHex(str) {
 
 function base64EncodedHexToBase64Text(extractedData) {
   // 1. Decode the base64-encoded hex string to get the hexadecimal string.
-  const hexString = atob(base64EncodedHex);
+  const hexString = atob(extractedData);
 
   // 2. Convert the hexadecimal string to an array of bytes.
   const bytes = new Uint8Array(hexString.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
