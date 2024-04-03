@@ -233,18 +233,25 @@ function base64ToHex(str) {
   return result.toUpperCase();
 }
 
-function base64BytesToBase64String(byteArray) {
-  // 1. Convert each byte in the byte array to the corresponding ASCII character.
-  const chars = byteArray.map(byte => String.fromCharCode(byte));
-  // 2. Join all characters together to form a binary string.
-  const binaryString = chars.join('');
-  // 3. Encode the binary string to base64 if it's not already in base64 form.
-  const base64String = btoa(binaryString);
+function base64EncodedHexToBase64Text(extractedData) {
+  // 1. Decode the base64-encoded hex string to get the hexadecimal string.
+  const hexString = atob(base64EncodedHex);
 
-  // 4. Return the base64 string.
-  return base64String;
+  // 2. Convert the hexadecimal string to an array of bytes.
+  const bytes = new Uint8Array(hexString.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+
+  // 3. Convert the bytes to a binary string.
+  let binaryString = '';
+  bytes.forEach((byte) => {
+    binaryString += String.fromCharCode(byte);
+  });
+
+  // 4. Encode the binary string into a base64 text string.
+  const base64Text = btoa(binaryString);
+
+  // 5. Return the base64 text string.
+  return base64Text;
 }
-
 
 
 
@@ -268,7 +275,10 @@ let extractedData = extractBytes(hexString, 37, 80);
 
 log("COTT ENCODED:-", extractedData);
 
-const base64Text = base64BytesToBase64String(extractedData);
+// Example usage:
+//const base64EncodedHex = 'NDg2NTZjNmM2ZjIwNzU2ZjcyNmQ='; // Base64 encoded hex for "Hello World" (hex: "48656c6c6f20576f726c64")
+const base64Text = base64EncodedHexToBase64Text(extractedData);
+
 
 log("COTT DECODED", base64Text);
 
