@@ -233,19 +233,25 @@ function base64ToHex(str) {
   return result.toUpperCase();
 }
 
-function base64EncodedHexToDecodedHex(base64EncodedHex) {
-  // Decode the base64 string
-  const binaryString = atob(base64EncodedHex);
+function base64HexToBase64Text(base64Hex) {
+  // Step 1: Decode the base64 string to get the hex bytes.
+  const hexString = atob(base64Hex);
 
-  // Convert the binary string to the original hex string
-  let hexString = '';
-  for (let i = 0; i < binaryString.length; i++) {
-    const hex = binaryString.charCodeAt(i).toString(16);
-    hexString += hex.padStart(2, '0');
+  // Step 2: Parse the hex string into its binary representation.
+  let binaryString = '';
+  for (let i = 0; i < hexString.length; i += 2) {
+    // Convert each pair of hex characters to a binary byte.
+    const hexByte = hexString.substring(i, i + 2);
+    const byteValue = parseInt(hexByte, 16);
+    binaryString += String.fromCharCode(byteValue);
   }
 
-  return hexString;
+  // Step 3: Encode the binary string to a base64 text string.
+  const base64Text = btoa(binaryString);
+
+  return base64Text;
 }
+
 
 // Given hex string
 let hexString = "030D91014B55033132372E302E302E313A383038302F636F74742E68746D6C3F636F74743D4151574F50396E557367414966795835595F755475595A392D415A632D54475F6B56415956524250565A673D4C360000028001696E66696E656F6E20746563686E6F6C6F676965733A696E66696E656F6E2E636F6D3A6E66632D6272696467652D7461672E78353039003082027C30820202A003020102020408000002300A06082A8648CE3D040302308196313E303C06035504030C354E464320627269646765202620434C2074616720646576696365732054455354206D616E75666163747572696E6720434120313030310B30090603550406130244453121";  // Replace '...' with the rest of the hex string
@@ -267,11 +273,10 @@ let extractedData = extractBytes(hexString, 37, 80);
 
 log("COTT ENCODED:-", extractedData);
 
-const base64EncodedHex = '4151574F50396E557367414966795835595F755475595A392D415A632D54475F6B56415956524250565A673D'; // Base64 encoded string
+const base64Hex = '4151574F50396E557367414966795835595F755475595A392D415A632D54475F6B56415956524250565A673D'; // Your base64 string representing hex bytes here
+const base64Text = base64HexToBase64Text(base64Hex)
 
-const decodedHex = base64EncodedHexToDecodedHex(base64EncodedHex);
-
-log("COTT DECODED", decodedHex);
+log("COTT DECODED", base64Text);
 
 
 
