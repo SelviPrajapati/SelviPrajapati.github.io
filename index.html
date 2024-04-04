@@ -13,7 +13,7 @@
     src="https://cdn.jsdelivr.net/npm/@infineon/infineon-design-system-stencil/dist/infineon-design-system-stencil/infineon-design-system-stencil.esm.js"></script>
 
      <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
-    <script src="https://github.com/jfamousket/aes-cmac-js/blob/master/src/aes-cmac.ts"></script>
+    <script src="index.js"></script>
 
     <script>
 
@@ -297,6 +297,21 @@ log("Header:", Header);
 log("UID:", UID);
 log("Random:", random);
 log("MAC:", mac);
+
+
+var aesCmac = require('node-aes-cmac').aesCmac;
+
+var key = Buffer.from('373F5060409BA014B69A627622F23B59', 'hex');
+
+var message = Buffer.from('01058E3FD9D4B2003FA53542963CECA7','hex') ;
+console.log('message is', message)
+
+// Calculate the CMAC
+var options = { returnAsBuffer: true };
+cmac = aesCmac(key, message, options);
+
+console.log("cmac "+ Buffer.from(cmac, 'base64').toString('hex')) ;
+// Convert the CMAC buffer to a hexadecimal string
 
 
 
