@@ -299,20 +299,8 @@ log("Random:", random);
 log("MAC:", mac);
 
 
-//var aesCmac = require('node-aes-cmac').aesCmac;
-
-var key = Buffer.from('373F5060409BA014B69A627622F23B59', 'hex');
-
-var message = Buffer.from('01058E3FD9D4B2003FA53542963CECA7','hex') ;
-console.log('message is', message)
-
-// Calculate the CMAC
-var options = { returnAsBuffer: true };
-cmac = aesCmac(key, message, options);
-
-console.log("cmac "+ Buffer.from(cmac, 'base64').toString('hex')) ;
-// Convert the CMAC buffer to a hexadecimal string
-
+log("Generated Mac:", mac);
+log("Generated COTT:", base64ToHex("AQWOP9nUsgCRviMRPB5D6Q0LPU8k7vYyU6NcdQZBWHc=")); 
 
 
 for (const record of event.message.records) {
