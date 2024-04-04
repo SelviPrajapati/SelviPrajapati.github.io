@@ -273,7 +273,7 @@ function extractBytes(hexString, startByte, endByte) {
 // Extract bytes from 3rd to 34th byte (32bytes)
 let extractedData = extractBytes(hexString, 37, 80);
 
-log("COTTData:" + base64ToHex("AQWOP9nUsgCRviMRPB5D6Q0LPU8k7vYyU6NcdQZBWHc="));
+//log("COTTData:" + base64ToHex("AQWOP9nUsgCRviMRPB5D6Q0LPU8k7vYyU6NcdQZBWHc="));
 
 log("COTT Encoded Base64 Hex:", extractedData);
 
@@ -295,14 +295,15 @@ let random = hexString1.substring(2 * 8, 2 * 16);  // Assuming 1 byte = 2 charac
 // Separate and assign 17th byte to 32nd byte to variable "mac"
 let mac = hexString1.substring(2 * 16, 2 * 31);  // Assuming 1 byte = 2 characters
 
+log("Parsed COTT Information");
 log("Header:", Header);
 log("UID:", UID);
 log("Random:", random);
 log("MAC:", mac);
 
 
-log("Generated Mac:", mac);
-log("Generated COTT:", base64ToHex("AQWOP9nUsgCRviMRPB5D6Q0LPU8k7vYyU6NcdQZBWHc=")); 
+log("\nGenerated Mac:", mac);
+log("\nGenerated COTT:", base64ToHex("AQWOP9nUsgCRviMRPB5D6Q0LPU8k7vYyU6NcdQZBWHc=")); 
 
 
 for (const record of event.message.records) {
