@@ -273,12 +273,14 @@ function extractBytes(hexString, startByte, endByte) {
 // Extract bytes from 3rd to 34th byte (32bytes)
 let extractedData = extractBytes(hexString, 37, 80);
 
+log("COTTData:" + base64ToHex("AQWOP9nUsgCRviMRPB5D6Q0LPU8k7vYyU6NcdQZBWHc="));
+
 log("COTT Encoded Base64 Hex:", extractedData);
 
 const hexString1 = '01058e3fd9d4b20091be23113c1e43e90d0b3d4f24eef63253a35c7506415877'; // Hexadecimal for 'Hello'
 const base64String = hexToBase64(hexString1);
 
-log("COTT Encoded Base64 string:", base64String);
+//log("COTT Encoded Base64 string:", base64String);
 log("COTT Decoded Base64 hex:", base64ToHex(base64String));
 
 
@@ -305,9 +307,9 @@ log("Generated COTT:", base64ToHex("AQWOP9nUsgCRviMRPB5D6Q0LPU8k7vYyU6NcdQZBWHc=
 
 for (const record of event.message.records) {
   log("Record type:  " + record.recordType);
-  log("MIME type:    " + record.mediaType);
+ // log("MIME type:    " + record.mediaType);
   log("=== data ===\n" + decoder.decode(record.data));
-  log("=== COTTData ===\n" + base64ToHex("AQWOP9nUsgCRviMRPB5D6Q0LPU8k7vYyU6NcdQZBWHc="));
+ // log("=== COTTData ===\n" + base64ToHex("AQWOP9nUsgCRviMRPB5D6Q0LPU8k7vYyU6NcdQZBWHc="));
 
   //log("=== COTTdata===\n" + extractedData); 
  
