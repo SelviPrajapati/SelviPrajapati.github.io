@@ -11,9 +11,16 @@
     
      <script type="module"
     src="https://cdn.jsdelivr.net/npm/@infineon/infineon-design-system-stencil/dist/infineon-design-system-stencil/infineon-design-system-stencil.esm.js"></script>
+
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
+    <script src="index.js"></script>
+
     <script>
+
+    
       // Add a global error event listener early on in the page load, to help ensure that browsers
       // which don't support specific functionality still end up displaying a meaningful message.
+  
       window.addEventListener('error', function(error) {
         if (ChromeSamples && ChromeSamples.setStatus) {
           console.error(error);
@@ -120,24 +127,104 @@
     .hex {
       font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
     }
+
+    .tab {
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background-color: #f1f1f1;
+}
+
+/* Style the buttons that are used to open the tab content */
+.tab button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+  background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+  background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent {
+  display: none;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-top: none;
+}
+
+
+
   </style>
 
 </head>
 <body>
 
+
+  <div class="tab">
+    <button class="tablinks" onclick="openCity(event, 'London')"> Brand Protection</button>
+    <button class="tablinks" onclick="openCity(event, 'Paris')">ADT</button>
+  </div>
+
     <div class="container">
         <ifx-navbar application-name="Web NFC" fixed="false"></ifx-navbar>
     
         <div class="app">
-          <h2>ADT use case with Web NFC </h2>
+          <h2>COTT use case with Web NFC </h2>
+
+          <div id="London" class="tabcontent">
+            
+         
 
           <div class="button1"> 
             
             <button id="readButton">scan</button>
-            <button id="textbutton">LED ON</button>
-            <button id="urlbutton">LED OFF</button>
 
+        </div>
+
+            </div> 
+          
+            <div id="Paris" class="tabcontent">
+            
+         
+
+              <div class="button1"> 
+                
+                <button id="ledon">Enable LED</button>
+                <button id="ledoff">Disable LED</button>
+    
             </div>
+
+          </div>
+
+
+
+
+<script>
+function openCity(evt, cityName) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+  document.getElementById(cityName).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+</script>
 
 
 <script src="webapi.ts"></script>
@@ -188,6 +275,7 @@
 </script>
 
 
+
 <script>
   log = ChromeSamples.log;
   
@@ -216,12 +304,99 @@ readButton.addEventListener("click", async () =>
       {
 
 const decoder = new TextDecoder();
-for (const record of event.message.records) {
-  log("Record type:  " + record.recordType);
-  log("MIME type:    " + record.mediaType);
-  log("=== data ===\n" + decoder.decode(record.data));
+
+function base64ToHex(str) {
+  const raw = atob(str);
+  let result = '';
+  for (let i = 0; i < raw.length; i++) {
+    const hex = raw.charCodeAt(i).toString(16);
+    result += (hex.length === 2 ? hex : '0' + hex);
+  }
+  return result.toUpperCase();
 }
 
+function hexToBase64(hexString) {
+  // Ensure the hex string has an even number of characters for valid conversion
+  if (hexString.length % 2 !== 0) {
+    throw new Error('Invalid hex string');
+  }
+
+  // Convert the hex string to a binary string
+  let binaryString = '';
+  for (let i = 0; i < hexString.length; i += 2) {
+    // Convert each pair of hex characters (byte) to its ASCII equivalent
+    binaryString += String.fromCharCode(parseInt(hexString.substring(i, i + 2), 16));
+  }
+
+  // Convert the binary string to a base64 string
+  const base64String = btoa(binaryString);
+
+  // Return the base64 string
+  return base64String;
+}
+
+
+
+// Given hex string
+let hexString = "030D91014B55033132372E302E302E313A383038302F636F74742E68746D6C3F636F74743D4151574F50396E557367414966795835595F755475595A392D415A632D54475F6B56415956524250565A673D4C360000028001696E66696E656F6E20746563686E6F6C6F676965733A696E66696E656F6E2E636F6D3A6E66632D6272696467652D7461672E78353039003082027C30820202A003020102020408000002300A06082A8648CE3D040302308196313E303C06035504030C354E464320627269646765202620434C2074616720646576696365732054455354206D616E75666163747572696E6720434120313030310B30090603550406130244453121";  // Replace '...' with the rest of the hex string
+
+// Function to extract the bytes from the hex string
+function extractBytes(hexString, startByte, endByte) {
+  // Convert start and end bytes to indices in the hex string
+  let startIndex = startByte * 2; // Each byte is represented by 2 characters in the hex string
+  let endIndex = (endByte + 1) * 2; // Adding 1 to the endByte to include the byte at that position
+
+  // Extract the specified bytes from the hex string
+  let extractedBytes = hexString.substring(startIndex, endIndex);
+
+  return extractedBytes;
+}
+
+// Extract bytes from 3rd to 34th byte (32bytes)
+let extractedData = extractBytes(hexString, 37, 80);
+
+//log("COTTData:" + base64ToHex("AQWOP9nUsgCRviMRPB5D6Q0LPU8k7vYyU6NcdQZBWHc="));
+
+log("COTT Encoded Base64 Hex:", extractedData);
+
+const hexString1 = '01058e3fd9d4b20091be23113c1e43e90d0b3d4f24eef63253a35c7506415877'; // Hexadecimal
+const base64String = hexToBase64(hexString1);
+
+//log("COTT Encoded Base64 string:", base64String);
+log("COTT Decoded Base64 hex:", base64ToHex(base64String));
+
+//
+
+let Header = hexString1.substring(0, 2);  // Assuming 1 byte = 2 characters
+
+
+let UID = hexString1.substring(2 * 1, 2 * 8);  // Assuming 1 byte = 2 characters
+// Separate and assign 9th byte to 16th byte to variable "random"
+let random = hexString1.substring(2 * 8, 2 * 16);  // Assuming 1 byte = 2 characters
+
+// Separate and assign 17th byte to 32nd byte to variable "mac"
+let mac = hexString1.substring(2 * 16, 2 * 31);  // Assuming 1 byte = 2 characters
+
+log("\nParsed COTT Information");
+log("Header:", Header);
+log("UID:", UID);
+log("Random:", random);
+log("MAC:", mac);
+
+      
+log("\nGenerated Mac:", mac);
+log("Generated COTT\n:", base64ToHex("AQWOP9nUsgCRviMRPB5D6Q0LPU8k7vYyU6NcdQZBWHc=")); 
+
+
+for (const record of event.message.records) {
+  log("\nRecord type:  " + record.recordType);
+ // log("MIME type:    " + record.mediaType);
+  log("=== data ===\n" + decoder.decode(record.data));
+ // log("=== COTTData ===\n" + base64ToHex("AQWOP9nUsgCRviMRPB5D6Q0LPU8k7vYyU6NcdQZBWHc="));
+
+  //log("=== COTTdata===\n" + extractedData); 
+ 
+}
 };
 } else 
 {
@@ -230,63 +405,6 @@ console.log("NFC permission not granted");
 
 });   
 
-textbutton.addEventListener("click", async () =>
-    {
-      log("User clicked LED ON button");
-    
-
-      const ndef = new NDEFReader();
-      await ndef.scan();
-
-      
-     const permission = await navigator.permissions.query({ name: "nfc" });
-      if (permission.state === "granted")
-{
-      
-ndef.write(
-  "hello world"
-).then(() => {
-  console.log("Message written.");
-}).catch(error => {
-  console.log(`Write failed :-( try again: ${error}.`);
-});
-
-
-} else 
-{
-console.log("NFC permission not granted");
-
-}
-
-});
-
-urlbutton.addEventListener("click", async () =>
-    {
-      log("User clicked LED OFF button");
-    
-      const ndef = new NDEFReader();
-      await ndef.scan();
-     const permission = await navigator.permissions.query({ name: "nfc" });
-      if (permission.state === "granted")
-{
-   
-ndef.write(
-  "Welcome"
-).then(() => {
-  console.log("Message written.");
-}).catch(error => {
-  console.log(`Write failed :-( try again: ${error}.`);
-
-});
-
-
-} else 
-{
-console.log("NFC permission not granted");
-
-}
-
-});
 
 
 function logCommand(command) {
@@ -326,6 +444,3 @@ function logCommand(command) {
 
   </body>
   </html>
-
-  
-  
